@@ -16,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 url = os.getenv("url")
-client = AsyncIOMotorClient("mongodb+srv://devlabs07:0rsKIrtlWd1h0Fn6@cluster0.0onzi5k.mongodb.net/")
+client = AsyncIOMotorClient(url)
 db = client["LiteralSocial"]
 collection = db["Authentication"]
 pass_context = CryptContext(schemes="bcrypt", deprecated="auto")
