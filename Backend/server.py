@@ -36,10 +36,10 @@ async def signin(data:Signin):
     email = data.usermail
     found = await collection.find_one({"Email": email})
     if found:
-        return {"message": "Accound already registered"}
+        return {"message": "Accound already registered", "id": 1}
     else: 
         await collection.insert_one({"Username": name,"Email": email ,"Password": password})
-        return {"message": "Successfully created an Account"}
+        return {"message": "Successfully created an Account", "id": 2}
     
 @app.post("/login")
 async def handle_login(data:Login):

@@ -26,7 +26,7 @@ export default function Login() {
         return;
     }
     try {
-      const response = await fetch("http://127.0.0.1:8000/signin", {
+      const response = await fetch("https://literasocial.onrender.com/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -39,8 +39,13 @@ export default function Login() {
       });
       const data = await response.json();
       console.log(data);
-      console.log(data.Message);
-      Alert.alert(data.Message);
+      console.log(data.message);
+      Alert.alert(data.message);
+      if(data.id == 1){
+        router.push("/(tabs)/explore");
+      } else if(data.id == 2){
+        router.push('/(tabs)/mainpage');
+      }
     }
     catch (error) {
       console.error(error);

@@ -1,0 +1,12 @@
+import { View } from "react-native";
+
+
+export default function mainpage(){
+
+    return(
+        <View style={{width:"100%", height:"100%", backgroundColor:"black"}}>
+
+        </View>
+    )
+
+}
