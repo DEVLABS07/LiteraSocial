@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 export default function Login() {
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
@@ -21,6 +21,10 @@ export default function Login() {
 
   const handleSignUp = async () => {
     console.log("Works");
+    if (!input1.trim() || !input2.trim() || !input3.trim()){
+        Alert.alert("Fill all the fields","Incomplete details");
+        return;
+    }
     try {
       const response = await fetch("http://127.0.0.1:8000/signin", {
         method: "POST",
@@ -35,6 +39,8 @@ export default function Login() {
       });
       const data = await response.json();
       console.log(data);
+      console.log(data.Message);
+      Alert.alert(data.Message);
     }
     catch (error) {
       console.error(error);

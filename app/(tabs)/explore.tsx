@@ -1,8 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function TabTwoScreen() {
   const [input1, setInput1] = useState('');
@@ -15,10 +14,36 @@ export default function TabTwoScreen() {
     if (visblity) {
       setName("eye-off-outline");
     }
-    else{
+    else {
       setName("eye-outline");
     }
   }
+  const handleLogin = async () => {
+    if (!input1.trim() || !input2.trim()) {
+      Alert.alert("Fill all the fields", "Incomplete details");
+      return;
+    }
+    console.log("works");
+    try {
+      const response = await fetch("http://127.0.0.1:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ Email: input1, Password: input2 })
+      })
+      const data = await response.json();
+      console.log(data);
+      console.log(data.Message);
+      Alert.alert(data.Message);
+    }
+    catch (error) {
+      console.error(error);
+    }
+
+  }
+
+
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: "#e3e3e334", display: "flex", alignItems: "center" }}>
       <Text style={{ fontSize: 35, paddingTop: 60, fontFamily: "sans-serif", fontWeight: 900 }}>LiteralSocial</Text>
@@ -35,7 +60,7 @@ export default function TabTwoScreen() {
           <Ionicons name="lock-closed-outline" style={{ position: "absolute", left: 30, top: "108%" }} size={24} color={"grey"} />
           <Ionicons name={name} onPress={handleView} style={{ position: "absolute", right: 30, top: "108%" }} size={24} color={"grey"} />
         </View>
-        <TouchableOpacity activeOpacity={0.8} style={{ marginTop: 30, borderWidth: 1, borderColor: "black", width: "80%", padding: 15, borderRadius: 10, backgroundColor: "black" }}><Text style={{ width: "100%", textAlign: "center", color: "white" }}>Sign In</Text></TouchableOpacity>
+        <TouchableOpacity onPress={handleLogin} activeOpacity={0.8} style={{ marginTop: 30, borderWidth: 1, borderColor: "black", width: "80%", padding: 15, borderRadius: 10, backgroundColor: "black" }}><Text style={{ width: "100%", textAlign: "center", color: "white" }}>Sign In</Text></TouchableOpacity>
         <View style={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "center", paddingTop: 30, gap: 8, alignItems: "center" }}><Text style={{ color: "gray" }}>Dont Have an account?</Text><Text style={{ color: "black", fontWeight: 600 }} onPress={() => router.push("/(tabs)/Login")}>Sign Up</Text></View>
       </View>
       <Text style={{ color: "gray", fontSize: 10, paddingTop: 15 }}>By continuing, you agree to our Terms & Privacy Policy</Text>

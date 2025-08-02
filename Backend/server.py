@@ -25,15 +25,31 @@ class Signin(BaseModel):
     username: str
     usermail: str
     password: str
-
+class Login(BaseModel):
+    Email: str
+    Password: str
+    
 @app.post("/signin")
 async def signin(data:Signin):
     name = data.username   
     password = pass_context.hash(data.password)
     email = data.usermail
-    found = await collection.find_one({"Username": name})
+    found = await collection.find_one({"Email": email})
     if found:
         return {"message": "Accound already registered"}
     else: 
         await collection.insert_one({"Username": name,"Email": email ,"Password": password})
         return {"message": "Successfully created an Account"}
+    
+@app.post("/login")
+async def handle_login(data:Login):
+    email = data.Email
+    password = data.Password
+    found = await collection.find_one({"Email": email})
+    if found:
+        if pass_context.verify(password, found["Password"]) :
+            return {"Message": "Login Successful", "id": 123}
+        else:
+            return {"Message": "Invalid Credentials", "id": 4}
+    else:
+        return {"Message": "Account Not found", "id": 5}
