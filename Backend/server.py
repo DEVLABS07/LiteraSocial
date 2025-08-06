@@ -19,6 +19,7 @@ url = os.getenv("url")
 client = AsyncIOMotorClient(url)
 db = client["LiteralSocial"]
 collection = db["Authentication"]
+thoughts = db["Thoughts"]
 pass_context = CryptContext(schemes="bcrypt", deprecated="auto")
 
 class Signin(BaseModel):
@@ -53,3 +54,10 @@ async def handle_login(data:Login):
             return {"Message": "Invalid Credentials", "id": 4}
     else:
         return {"Message": "Account Not found", "id": 5}
+    
+@app.get("/thoughts")
+async def handle_thoughts():
+   data = await thoughts.find().to_list(length=None)
+   for id in data:
+       id['_id'] = str(id['_id'])
+   return {"Data": data}

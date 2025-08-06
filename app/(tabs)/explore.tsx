@@ -35,10 +35,12 @@ export default function TabTwoScreen() {
       const data = await response.json();
       console.log(data);
       console.log(data.Message);
-      Alert.alert(data.Message,"LiteraSocial");
-      if(data.id == 123){
+      Alert.alert("LiteraSocial",data.Message);
+      if (data.id == 123) {
         router.push("/(tabs)/mainpage");
       }
+      setInput1("");
+      setInput2("");
     }
     catch (error) {
       console.error(error);
@@ -49,11 +51,11 @@ export default function TabTwoScreen() {
 
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: "#e3e3e334", display: "flex", alignItems: "center" }}>
-      <Text style={{ fontSize: 35, paddingTop: 60, fontFamily: "sans-serif", fontWeight: 900 }}>LiteralSocial</Text>
+      <Text style={{ fontSize: 35, paddingTop: 60, fontFamily: "sans-serif", fontWeight: 900 }}>LiteraSocial</Text>
       <Text style={{ paddingTop: 15, color: "gray" }}>Where literature meets social connection</Text>
       <View style={{ width: "85%", height: "65%", backgroundColor: "white", marginTop: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Text style={{ fontSize: 25, paddingTop: 0, fontFamily: "sans-serif", fontWeight: 700 }}>Welcome Back</Text>
-        <Text style={{ paddingTop: 15, color: "gray" }}>Sign in to LitrealSocial</Text>
+        <Text style={{ paddingTop: 15, color: "gray" }}>Sign in to LitreaSocial</Text>
         <View style={{ width: "100%", display: "flex", alignItems: "center", flexDirection: "column", paddingTop: 50 }}>
           <Text style={{ color: "black", fontSize: 16, fontWeight: 500, alignSelf: "flex-start", paddingLeft: "8%" }}>Email</Text>
           <TextInput value={input1} onChangeText={setInput1} autoCapitalize="none" style={{ backgroundColor: "white", width: "90%", height: 50, marginTop: 10, borderWidth: 1, borderColor: "lightgray", borderRadius: 10, color: "black", paddingLeft: 50 }} placeholder="Enter your Mail"></TextInput>

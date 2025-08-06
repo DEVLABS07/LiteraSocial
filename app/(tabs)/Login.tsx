@@ -39,13 +39,15 @@ export default function Login() {
       });
       const data = await response.json();
       console.log(data);
-      console.log(data.message);
-      Alert.alert(data.message);
+      Alert.alert("LiteraSocial",data.message);
       if(data.id == 1){
         router.push("/(tabs)/explore");
       } else if(data.id == 2){
         router.push('/(tabs)/mainpage');
       }
+      setInput1("");
+      setInput2("");
+      setInput3("");
     }
     catch (error) {
       console.error(error);
@@ -53,10 +55,10 @@ export default function Login() {
   }
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: "#e3e3e334", display: "flex", alignItems: "center" }}>
-      <Text style={{ fontSize: 35, paddingTop: 60, fontFamily: "sans-serif", fontWeight: 900 }}>LiteralSocial</Text>
+      <Text style={{ fontSize: 35, paddingTop: 60, fontFamily: "sans-serif", fontWeight: 900 }}>LiteraSocial</Text>
       <Text style={{ paddingTop: 15, color: "gray" }}>Where literature meets social connection</Text>
       <View style={{ width: "85%", height: "65%", backgroundColor: "white", marginTop: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 25, paddingTop: 10, fontFamily: "sans-serif", fontWeight: 700 }}>Join LiteralSocial</Text>
+        <Text style={{ fontSize: 25, paddingTop: 10, fontFamily: "sans-serif", fontWeight: 700 }}>Join LiteraSocial</Text>
         <Text style={{ paddingTop: 15, color: "gray" }}>Create your account to start sharing literature</Text>
         <View style={{ width: "100%", display: "flex", alignItems: "center", flexDirection: "column", paddingTop: 50 }}>
           <Text style={{ color: "black", fontSize: 16, fontWeight: 500, alignSelf: "flex-start", paddingLeft: "8%" }}>Full Name</Text>
