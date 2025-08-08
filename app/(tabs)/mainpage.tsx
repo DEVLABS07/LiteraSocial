@@ -2,13 +2,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import AddPost from "./AddPost";
 
 
 export default function mainpage() {
     const router = useRouter();
     const [nav, setNav] = useState(false);
+    const [addpost, setAddpost] = useState(false);
     const [name, setName] = useState("reorder-three-outline");
     const handlenav = () => {
+        if(addpost){
+            setAddpost(!addpost);
+            return;
+        }
         setNav(!nav);
         if (!nav) {
             setName("close-outline")
@@ -17,14 +23,19 @@ export default function mainpage() {
         }
 
     }
+
+    const handle_addPost = () => {
+        setAddpost(!addpost);
+        setName("close-outline")
+    }
     return (
-        <View style={{ flex:1, backgroundColor: "white", display: "flex", position:"relative",flexDirection: 'column', alignItems: 'center' }}>
+        <View style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
             <View style={{ width: "100%", height: 100, paddingTop: 20, position: "fixed", display: "flex", flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "lightgray" }}>
                 <Ionicons name="book-outline" color={"black"} size={24} style={{ fontWeight: 600, paddingLeft: 26, paddingTop: 5 }} />
                 <Text style={{ fontSize: 24, fontWeight: 600, paddingLeft: 10 }}>LiteraSocial</Text>
                 <Ionicons onPress={handlenav} name={name} size={24} color={"black"} style={{ paddingTop: 5, position: "absolute", top: 45, right: 20 }} />
             </View>
-            {nav && <View style={{ width: "100%", position: 'absolute', display: "flex", gap: 30, padding: 20, borderBottomWidth: 1, borderBottomColor: "lightgray", top:100, backgroundColor:"white" ,zIndex:10000 }}>
+            {nav && <View style={{ width: "100%", position: 'absolute', display: "flex", gap: 30, padding: 20, borderBottomWidth: 1, borderBottomColor: "lightgray", top: 100, backgroundColor: "white", zIndex: 10000 }}>
                 <Pressable onPress={() => router.push("/(tabs)/mainpage")} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 20 }}>
                     <Ionicons name="book-outline" color={"black"} size={20} style={{ fontWeight: 600, paddingTop: 5 }} />
                     <Text style={{ fontSize: 20, fontWeight: 400 }}>Literature</Text>
@@ -38,14 +49,14 @@ export default function mainpage() {
                     <Text style={{ fontSize: 20, fontWeight: 400, paddingRight: 18 }}>AI Chat</Text>
                 </Pressable>
             </View>}
-            <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom:10 }} style={{ width: "100%" }}>
+            <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom: 10 }} style={{ width: "100%" }}>
                 <View style={{ width: "100%", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: 'center' }}>
                     <View style={{ width: "50%", display: "flex", alignItems: "center" }}>
                         <Text style={{ fontSize: 24, fontWeight: 700, padding: 15, paddingBottom: 0, textAlign: "left" }}>Literary Community</Text>
                         <Text style={{ color: "gray", padding: 15, textAlign: "left" }}>Share your stories, poems, and connect with fellow writers</Text>
                     </View>
                     <View style={{ width: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Pressable style={{ width: "90%", gap: 10, height: 50, backgroundColor: "black", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: 'center', borderRadius: 10 }}>
+                        <Pressable onPress={handle_addPost} style={{ width: "90%", gap: 10, height: 50, backgroundColor: "black", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: 'center', borderRadius: 10 }}>
                             <Ionicons name="add-outline" size={14} color={"white"} style={{ padding: 4, borderWidth: 1, borderColor: "white", borderRadius: 50 }} />
                             <Text style={{ color: "white", fontWeight: 500, textAlign: 'center' }}>Share Your Work</Text>
                         </Pressable>
@@ -145,11 +156,14 @@ export default function mainpage() {
 
                 </View>
             </ScrollView>
-            <View style={{width:"100%",height:80,bottom:0,position:"absolute",zIndex:10000000, backgroundColor:"white",borderTopWidth:1,borderTopColor:"lightgray", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"row", gap:"25%"}}>
-                 <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home" size={24} color={"black"} />
-                 <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox-outline" size={24} color={"black"} />
-                 <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={24} color={"black"} />
+            <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "13%" }}>
+                <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Search")} name="search-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
             </View>
+           { addpost && <AddPost /> }
             <View style={{ padding: 30 }}>
 
             </View>

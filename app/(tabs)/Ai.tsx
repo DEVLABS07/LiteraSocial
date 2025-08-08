@@ -62,10 +62,10 @@ export default function Ai() {
     useEffect(() => {
         scrolllref.current?.scrollToEnd({ animated: true });
     }, [chat]);
-    
+
     useEffect(() => {
         const showSubscription = Keyboard.addListener('keyboardDidShow', (e: KeyboardEvent) => {
-            setKeyboardHeight((e.endCoordinates.height)+15);
+            setKeyboardHeight((e.endCoordinates.height) + 15);
         });
 
         const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
@@ -115,7 +115,7 @@ export default function Ai() {
                 renderItem={({ item, key }) => (
                     <View key={key} style={{ display: "flex", flexDirection: 'row', paddingRight: 12, paddingLeft: 15, gap: 10, alignSelf: item.sender == "bot" ? "flex-start" : "flex-end", marginTop: 20 }}>
                         {item.sender == "bot" ? <Ionicons name="logo-reddit" size={20} color={"black"} style={{ height: 45, padding: 12, backgroundColor: "#e3e3e386", borderRadius: 50, borderWidth: 1, borderColor: "gray", textAlign: 'center' }} /> : null}
-                        <Pressable style={{ maxWidth: "50%", padding: 15, borderWidth: 1, borderColor: item.sender == "bot" ? "lightgray" : '', borderRadius: 10, backgroundColor: item.sender == "bot" ? "white" : "black" }}>
+                        <Pressable style={{ maxWidth: "80%", padding: 15, borderWidth: 1, borderColor: item.sender == "bot" ? "lightgray" : '', borderRadius: 10, backgroundColor: item.sender == "bot" ? "white" : "black" }}>
                             <Text style={{ color: item.sender == "bot" ? "black" : "white" }}>{item.message}</Text>
                             <Text style={{ color: "gray", fontSize: 12, paddingTop: 5 }}>{item.time}</Text>
                         </Pressable>
@@ -134,10 +134,12 @@ export default function Ai() {
                 <TextInput value={input} onChangeText={setInput} style={{ width: "80%", height: 50, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 15, paddingRight: 15, marginTop: 15 }} placeholder="Ask about Literature, Writing, Stories.."></TextInput>
                 <TouchableOpacity onPress={handle_user_message} activeOpacity={0.7} style={{ padding: 10, backgroundColor: "black", borderRadius: 20, height: 40, marginTop: 20 }}><Ionicons name="paper-plane-outline" size={20} color={"white"} /></TouchableOpacity>
             </View>
-            <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "25%" }}>
-                <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home-outline" size={24} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox-outline" size={24} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person" size={24} color={"black"} />
+            <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "13%" }}>
+                <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Search")} name="search-outline" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person" size={22} color={"black"} />
+                <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
             </View>
         </View>
     )
