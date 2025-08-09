@@ -63,7 +63,7 @@ async def handle_thoughts():
 
 @app.get("/Posts")
 async def get_posts():
-    data = await Posts.find().sort("time", -1).limit(10).to_list(length=10)
+    data = await Posts.find().to_list(length=None)
     for id in data:
         id['_id'] = str(id['_id'])
     return {"Data": data}

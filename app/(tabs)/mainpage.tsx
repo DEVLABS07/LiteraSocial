@@ -56,6 +56,11 @@ export default function mainpage() {
     const test_posts = async () => {
         await axios.get("http://127.0.0.1:8000")
     }
+
+    const fetch_more_posts = async () => {
+        const response = await axios.get("https://literasocial.onrender.com/Posts");
+        setPosts(prev => [...prev, ...response.data.Data]);
+    }
     return (
         <View style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
             <View style={{ width: "100%", height: 100, paddingTop: 20, position: "fixed", display: "flex", flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "lightgray" }}>
