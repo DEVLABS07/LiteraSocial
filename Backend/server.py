@@ -63,7 +63,7 @@ async def handle_thoughts():
 
 @app.get("/Posts")
 async def get_posts():
-    data = await Posts.find().to_list(length=None)
+    data = await Posts.find().sort("time", -1).limit(10).to_list(length=10)
     for id in data:
         id['_id'] = str(id['_id'])
     return {"Data": data}
@@ -72,3 +72,4 @@ async def get_posts():
 async def add_posts(data:Post):
     response = await Posts.insert_one({"Email":data.Email, "Username": data.Username, "UserId": data.Userid, "tag": data.tag,"heading": data.heading ,"content": data.content, "likes":data.likes, "comments":data.comments, "share":data.shares, "time": data.time})
     return {"Message": "Post Successfully saved"}
+

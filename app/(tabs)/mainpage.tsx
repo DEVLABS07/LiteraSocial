@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Easing, FlatList, Pressable, Text, View } from "react-native";
@@ -17,50 +18,18 @@ export default function mainpage() {
             useNativeDriver: true
         })).start();
     }, [])
+
+    useEffect(() => {
+       const handle_fetchPosts = async () => {
+         const response = await axios.get("https://literasocial.onrender.com/Posts");
+         setPosts(prev => [...prev, ...response.data.Data]);
+       }
+       handle_fetchPosts();
+    },[])
+
+
     const spin = rotateValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
-    const [posts, setPosts] = useState([
-        {
-            _id: "68960ea163d33e3190f5380e",
-            Email: "jram6269@gmail.com",
-            Username: "Jayaram",
-            UserId: "itz_jram18",
-            tag: "Poetry",
-            heading: "Whispers of the Wind",
-            content: "Hehehehe",
-            likes: "0",
-            comments: "0",
-            share: "0",
-            time: "10:30 am",
-        },
-        {
-            _id: "91a73bd5c142ea21f9d204c7",
-            Email: "poetlover@gmail.com",
-            Username: "Aarav",
-            UserId: "aarav_poet22",
-            tag: "Short Story",
-            heading: "The Night the Stars Spoke",
-            content: "The moon whispered secrets to the ocean waves...",
-            likes: "12",
-            comments: "3",
-            share: "1",
-            time: "6:45 pm",
-        },
-        {
-            _id: "45c2f9a6dfb8b2a72ed5fa90",
-            Email: "literaryqueen@gmail.com",
-            Username: "Meera",
-            UserId: "meera_litqueen",
-            tag: "Poetry",
-            heading: "Petals and Promises",
-            content: "Petals fall, seasons change, but love remains eternal.",
-            likes: "25",
-            comments: "8",
-            share: "4",
-            time: "7:15 am",
-        }
-    ]);
-
-
+    const [posts, setPosts] = useState([]);
     const [nav, setNav] = useState(false);
     const [addpost, setAddpost] = useState(false);
     const [name, setName] = useState("reorder-three-outline");
@@ -82,6 +51,10 @@ export default function mainpage() {
     const handle_addPost = () => {
         setAddpost(!addpost);
         setName("close-outline")
+    }
+
+    const test_posts = async () => {
+        await axios.get("http://127.0.0.1:8000")
     }
     return (
         <View style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
@@ -152,17 +125,17 @@ export default function mainpage() {
                 ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => (
-                    <View style={{ minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 20, borderRadius: 10 }}>
+                    <View style={{ minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 0, borderRadius: 10 }}>
                         <View style={{ width: "100%", padding: 15, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start" }}>
                             <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
-                            <View style={{ display: 'flex', flexDirection: "column", alignItems: 'center', padding: 10 }}>
-                                <Text style={{ fontSize: 15, fontWeight: 500 }}>{item.Username}</Text>
+                            <View style={{ display: 'flex', flexDirection: "column", padding: 10 }}>
+                                <Text style={{ fontSize: 15, fontWeight: 500, textAlign:'left', paddingLeft:5 }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.time}</Text>
                             </View>
-                            <Ionicons name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "relative", left: "45%" }} />
+                            <Ionicons name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "relative", left: "50%" }} />
                         </View>
                         <View style={{ width: "100%", display: "flex", flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                            <Text style={{ fontSize: 18, fontWeight: 500 }}>{item.heading}</Text>
+                            <Text style={{ fontSize: 18, fontWeight: 500,flexWrap:"wrap" }}>{item.heading}</Text>
                             <Text style={{ padding: 10, fontSize: 12, borderRadius: 20, backgroundColor: "lightgray", color: "black" }}>{item.tag}</Text>
                         </View>
                         <View style={{ width: "100%", display: "flex", alignItems: 'center', alignContent: 'center', padding: 20,  }}>
