@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 
 export default function AddPost() {
 
@@ -25,6 +25,10 @@ export default function AddPost() {
             time: time
 
         })
+        setContent("");
+        setHeading("")
+        setTag("");
+        Alert.alert("Post added Successfully")
     }
 
     return (
@@ -59,7 +63,7 @@ export default function AddPost() {
                     </View>
                     <TextInput value={content} onChangeText={setContent} multiline textAlignVertical="top" style={{ width: "90%", height: 150, borderWidth: 1, borderColor: "lightgray", padding: 10, borderRadius: 10 }} placeholder="Pour your thoughts on this digital mauscript..." />
                 </View>
-                <Pressable style={{ padding: 15, backgroundColor: "black", display: "flex", flexDirection: "row", width: "50%", borderRadius: 10, gap: 10, alignSelf: "flex-end", marginRight: 20, marginTop: 20 }}>
+                <Pressable onPress={handle_addPost} style={{ padding: 15, backgroundColor: "black", display: "flex", flexDirection: "row", width: "50%", borderRadius: 10, gap: 10, alignSelf: "flex-end", marginRight: 20, marginTop: 20 }}>
                     <Ionicons name={"document-outline"} size={15} color={"white"} style={{ marginTop: 2 }} />
                     <Text style={{ color: "white", fontWeight: 600 }}>Publish Literature</Text>
                 </Pressable>

@@ -11,8 +11,9 @@ export default function mainpage() {
     const [addpost, setAddpost] = useState(false);
     const [name, setName] = useState("reorder-three-outline");
     const handlenav = () => {
-        if(addpost){
+        if (addpost) {
             setAddpost(!addpost);
+            setName("reorder-three-outline");
             return;
         }
         setNav(!nav);
@@ -163,7 +164,7 @@ export default function mainpage() {
                 <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={22} color={"black"} />
                 <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
             </View>
-           { addpost && <AddPost /> }
+            {addpost && <AddPost />}
             <View style={{ padding: 30 }}>
 
             </View>
