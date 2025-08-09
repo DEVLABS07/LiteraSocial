@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 export default function Login() {
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
@@ -43,6 +45,7 @@ export default function Login() {
       if(data.id == 1){
         router.push("/(tabs)/explore");
       } else if(data.id == 2){
+        AsyncStorage.setItem("username",input1);
         router.push('/(tabs)/mainpage');
       }
       setInput1("");

@@ -70,5 +70,5 @@ async def get_posts():
 
 @app.post("/addPost")
 async def add_posts(data:Post):
-    response = await Posts.insert_one({"Email":data.Email, "Username": data.Username, "UserId": data.Userid, "tag": data.tag, "content": data.content, "likes":data.likes, "comments":data.comments, "share":data.shares})
+    response = await Posts.insert_one({"Email":data.Email, "Username": data.Username, "UserId": data.Userid, "tag": data.tag,"heading": data.heading ,"content": data.content, "likes":data.likes, "comments":data.comments, "share":data.shares, "time": data.time})
     return {"Message": "Post Successfully saved"}
