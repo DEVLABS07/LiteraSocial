@@ -20,6 +20,9 @@ export default function Thoughts() {
     const [nav, setNav] = useState(false);
     const [loader, setLoader] = useState(false);
     const [thoughts, setThoughts] = useState([])
+    const [liked, setLiked] = useState([{}]);
+    const [likedAni, setLikedAni] = useState(false);
+    const [options, setOptions] = useState({});
     const [name, setName] = useState("reorder-three-outline");
     const handlenav = () => {
         setNav(!nav);
@@ -67,6 +70,20 @@ export default function Thoughts() {
             setTimeout(() => { cooldown = true }, 1000);
         }
     }
+    const checkOptions = () => {
+        if (options) {
+            setOptions(!options);
+        }
+    }
+
+    const handleLikes = (item) => {
+        if (liked.some(count => count.id == item._id)) {
+            setLiked(liked.filter(post => post.id != item._id));
+        } else {
+            setLiked(prev => [...prev, { id: item._id }])
+        }
+    }
+
 
 
     return (
@@ -119,34 +136,39 @@ export default function Thoughts() {
                 onEndReached={handleMoreThoughts}
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => (
-                    <View style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', marginTop: 0, borderRadius: 10 }}>
+                    <Pressable onPress={checkOptions} style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', marginTop: 0, borderRadius: 10 }}>
+                        {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 10000000001, borderRadius: 10, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", position: "absolute", }}>
+                            <Pressable onPress={checkOptions} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
+                                <Text style={{ color: "white", fontSize: 13 }}>Report</Text>
+                            </Pressable>
+                        </View> : null}
                         <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
                             <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
                             <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10 }}>
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: "left" }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.Time}</Text>
                             </View>
-                            <Ionicons name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "absolute", right: 30 }} />
+                            <Ionicons onPress={() => { setOptions({ id: item._id }) }} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "absolute", right: 30, zIndex: 1000000000 }} />
                         </View>
                         <View style={{ paddingTop: 75, width: "100%", display: "flex", alignItems: 'center', justifyContent: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: "lightgray", borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
                             <Text style={{ textAlign: "left", fontSize: 14, fontWeight: 500, lineHeight: 25, padding: 10 }}>
                                 {item.Thought}</Text>
                         </View>
                         <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, width: "100%", paddingLeft: 20 }}>
-                            <View style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name="heart-outline" size={25} color={"black"} />
+                            <Pressable onPressIn={() => setLikedAni(true)} onPressOut={() => setLikedAni(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                                <Ionicons name={liked.some(count => count.id == item._id) ? "heart" : "heart-outline"} size={likedAni? 27:25} color={liked.some(count => count.id == item._id) ? "red" : "black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.Likes}</Text>
-                            </View>
-                            <View style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                            </Pressable>
+                            <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.Comments}</Text>
-                            </View>
-                            <View style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                            </Pressable>
+                            <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="paper-plane-outline" size={25} color={"black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.Shares}</Text>
-                            </View>
+                            </Pressable>
                         </View>
-                    </View>
+                    </Pressable>
                 )}
                 ListFooterComponent={<>
                     {loader && thoughts.length > 2 && <Animated.View style={[{ width: 30, height: 30, borderWidth: 1.5, borderBottomWidth: 0, borderLeftWidth: 0, borderColor: 'black', borderTopColor: '#333', borderRadius: 20 }, { transform: [{ rotate: spin }] }]}></Animated.View>}

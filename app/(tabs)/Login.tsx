@@ -45,7 +45,7 @@ export default function Login() {
       if(data.id == 1){
         router.push("/(tabs)/explore");
       } else if(data.id == 2){
-        AsyncStorage.setItem("username",input1);
+        AsyncStorage.setItem("username",input2);
         router.push('/(tabs)/mainpage');
       }
       setInput1("");
