@@ -62,6 +62,20 @@ async def signin(data:Signin):
         await login.insert_one({"Username": name,"Email": email ,"Password": password})
         return {"message": "Successfully created an Account", "id": 2}
     
+@app.post("/login")
+async def handle_login(data:Login):
+    email = data.Email
+    password = data.Password
+    found = await login.find_one({"Email": email})
+    if found:
+        if pass_context.verify(password, found["Password"]) :
+            return {"Message": "Login Successful", "id": 123}
+        else:
+            return {"Message": "Invalid Credentials", "id": 4}
+    else:
+        return {"Message": "Account Not found", "id": 5}
+    
+    
 @app.get("/thoughts")
 async def handle_thoughts():
     data = await thoughts.find().to_list(length=None)
@@ -86,5 +100,5 @@ async def handle_likes(data:likes):
     likes_list = data.like
     email = data.email
     for likedposts in likes_list:
-        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts["id"])}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts.id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
     return {"message": "Like Updated Successfully"}

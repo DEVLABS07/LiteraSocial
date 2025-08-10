@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -37,6 +38,7 @@ export default function TabTwoScreen() {
       console.log(data.Message);
       Alert.alert("LiteraSocial",data.Message);
       if (data.id == 123) {
+        AsyncStorage.setItem("username",input1)
         router.push("/(tabs)/mainpage");
       }
       setInput1("");
