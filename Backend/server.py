@@ -85,6 +85,6 @@ async def add_posts(data:Post):
 async def handle_likes(data:likes):
     likes_list = data.like
     email = data.email
-    for likes in likes_list:
-        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likes["id"])}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+    for likedposts in likes_list:
+        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts["id"])}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
     return {"message": "Like Updated Successfully"}
