@@ -113,8 +113,8 @@ export default function mainpage() {
             });
             console.log(response.data);
         }
-        catch(error){
-            console.error("Error Saving Likes. Error:",error);
+        catch (error) {
+            console.error("Error Saving Likes. Error:", error);
         }
     }
 
@@ -129,6 +129,8 @@ export default function mainpage() {
         if (likedQueue.length > 3) {
             console.log("Lenght limit exceeded");
             flushLikes();
+            setlikedQueue([]);
+            console.log("Flush Activated");
         }
     }
 
