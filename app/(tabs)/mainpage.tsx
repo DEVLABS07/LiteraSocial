@@ -88,6 +88,7 @@ export default function mainpage() {
 
     let cooldown = false;
     const fetch_more_posts = async () => {
+        if (posts.length < 2) return;
         if (loader && cooldown) return;
         setLoader(true);
         cooldown = true;
@@ -205,7 +206,25 @@ export default function mainpage() {
                         <Text style={{ color: "gray", fontSize: 15 }}>"The best stories are the ones that remind us why we fell in love with words in the first place."</Text>
                         <Text style={{ color: "black", fontSize: 17, fontWeight: 500 }}>Explore featured collections →</Text>
                     </View>
-                    {posts.length < 1 ? <Animated.View style={[{ width: 30, height: 30, marginLeft: "45%", marginTop: 50, borderWidth: 1.5, borderBottomWidth: 0, borderLeftWidth: 0, borderColor: 'black', borderTopColor: '#333', borderRadius: 20 }, { transform: [{ rotate: spin }] }]}></Animated.View> : null}
+                    {posts.length < 1 ? <Pressable style={{ marginLeft:"5%", minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 20, borderRadius: 10, position: 'relative' }}>
+                        <View style={{ width: "100%", padding: 15, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start" }}>
+                            <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>
+                            <View style={{ display: 'flex', flexDirection: "column", padding: 10, gap: 10 }}>
+                                <Text style={{ backgroundColor: "lightgray", borderRadius: 20, fontSize: 15, fontWeight: 500, textAlign: 'left', paddingLeft: 5, color: "lightgray" }}>sadklmas</Text>
+                                <Text style={{ fontSize: 12, color: "lightgray", padding: 0, backgroundColor: "lightgray", borderRadius: 20 }}>lsmd</Text>
+                            </View>
+                            <Ionicons name="ellipsis-horizontal-outline" size={20} color={"lightgray"} style={{ position: "relative", left: "50%", backgroundColor: "lightgray", borderRadius: 20 }} />
+                        </View>
+                        <View style={{ width: "100%", display: "flex", flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                            <Text style={{ fontSize: 18, fontWeight: 500, flexWrap: "wrap", color: "lightgray", backgroundColor: "lightgray", borderRadius: 20, paddingRight: 10 }}>saldkmasdlkasdsal;dksad;la</Text>
+                            <Text style={{ padding: 10, fontSize: 12, borderRadius: 20, backgroundColor: "lightgray", color: "lightgray" }}>sadkas</Text>
+                        </View>
+                        <View style={{ width: "100%", display: "flex", alignItems: 'center', alignContent: 'center', padding: 20, }}>
+                            <Text style={{ textAlign: "left", color: "lightgray", padding: 10, backgroundColor: "lightgray", borderRadius: 20, paddingLeft: 0, fontSize: 14, fontWeight: 500, lineHeight: 25 }}>
+                                The sky blushed as the first light crept over the sleeping hills, each ray a gentle finger unbuttoning the night’s dark coat. Birds began their hesitant songs, not quite ready to wake, yet unable to resist the pull of the sun’s warm breath.
+                            </Text>
+                        </View>
+                    </Pressable> : null}
                 </>}
                 keyExtractor={(item, index) => index.toString()}
                 contentContainerStyle={{ alignItems: "center", paddingBottom: 50, gap: 20 }}
