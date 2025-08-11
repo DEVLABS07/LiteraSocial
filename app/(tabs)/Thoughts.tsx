@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { Animated, Easing, FlatList, Pressable, RefreshControl, Text, TextInput, View } from "react-native";
 
 
 export default function Thoughts() {
@@ -19,7 +19,8 @@ export default function Thoughts() {
     const spin = rotateValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
     const [nav, setNav] = useState(false);
     const [loader, setLoader] = useState(false);
-    const [thoughts, setThoughts] = useState([])
+    const [thoughts, setThoughts] = useState([]);
+    const [refresh, setRefresh] = useState(false);
     const [liked, setLiked] = useState([{}]);
     const [likedAni, setLikedAni] = useState(false);
     const [options, setOptions] = useState({});
@@ -46,6 +47,25 @@ export default function Thoughts() {
         }
         handleSave();
     }, [])
+
+
+
+    const handleSave = async () => {
+        const response = await fetch("https://literasocial.onrender.com/thoughts", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        const data = await response.json();
+        setThoughts(prev => [...prev, ...data.Data]);
+    }
+
+    const Onrefresh = () => {
+        setRefresh(true);
+        setThoughts([]);
+        handleSave().finally(() => setRefresh(false));
+    }
 
     let cooldown = false;
     const handleMoreThoughts = async () => {
@@ -108,6 +128,9 @@ export default function Thoughts() {
                     <Text style={{ fontSize: 20, fontWeight: 400, paddingRight: 18 }}>AI Chat</Text>
                 </Pressable>
             </View>}
+            <View style={{ width: "100%", height: 100, position: "absolute", bottom: 80, left: 0, backgroundColor: "black", borderTopLeftRadius: 20, borderTopRightRadius: 20, zIndex: 900000000000, display: 'flex', alignItems: 'center' }}>
+                <Text>Comments</Text>
+            </View>
 
             {thoughts && <FlatList
                 data={thoughts}
@@ -158,7 +181,7 @@ export default function Thoughts() {
                 </>}
                 keyExtractor={(item, index) => index.toString()}
                 contentContainerStyle={{ alignItems: "center", paddingBottom: 110, gap: 40 }}
-                style={{ flex: 1, display: "flex" }}
+                style={{ flex: 1, display: "flex", zIndex: 1 }}
                 ItemSeparatorComponent={() => <View style={{ height: 0 }} />}
                 onEndReached={handleMoreThoughts}
                 onEndReachedThreshold={0.5}
@@ -183,7 +206,7 @@ export default function Thoughts() {
                         </View>
                         <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, width: "100%", paddingLeft: 20 }}>
                             <Pressable onPressIn={() => setLikedAni(true)} onPressOut={() => setLikedAni(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name={liked.some(count => count.id == item._id) ? "heart" : "heart-outline"} size={likedAni ? 27 : 25} color={liked.some(count => count.id == item._id) ? "red" : "black"} />
+                                <Ionicons name={liked.some(count => count.id == item._id) || likedAni ? "heart" : "heart-outline"} size={likedAni ? 27 : 25} color={liked.some(count => count.id == item._id) || likedAni ? "red" : "black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.Likes}</Text>
                             </Pressable>
                             <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
@@ -200,8 +223,12 @@ export default function Thoughts() {
                 ListFooterComponent={<>
                     {loader && thoughts.length > 2 && <Animated.View style={[{ width: 30, height: 30, borderWidth: 1.5, borderBottomWidth: 0, borderLeftWidth: 0, borderColor: 'black', borderTopColor: '#333', borderRadius: 20 }, { transform: [{ rotate: spin }] }]}></Animated.View>}
                 </>}
+                refreshControl={
+                    <RefreshControl refreshing={refresh} onRefresh={Onrefresh} />
+                }
             />
             }
+
             <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "13%" }}>
                 <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home-outline" size={22} color={"black"} />
                 <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox" size={22} color={"black"} />
@@ -209,7 +236,6 @@ export default function Thoughts() {
                 <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={22} color={"black"} />
                 <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
             </View>
-
         </View >
     )
 }

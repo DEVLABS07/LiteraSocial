@@ -3,24 +3,43 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, FlatList, Pressable, Text, View } from "react-native";
+import { Animated, Easing, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
 import AddPost from "./AddPost";
 
 
 export default function mainpage() {
     const router = useRouter();
     const [posts, setPosts] = useState([]);
+    const [refresh, setRefresh] = useState(false);
     const [nav, setNav] = useState(false);
     const [liked, setLiked] = useState([{}]);
     const [likedQueue, setlikedQueue] = useState([]);
     const [loader, setLoader] = useState(false);
+    const [comments, setComments] = useState(false);
     const [addpost, setAddpost] = useState(false);
-    const [likedanimation, setlikedAnimations] = useState(false);
+    const [likedanimation, setlikedAnimations] = useState({});
     const [options, setOptions] = useState({});
     const [usermail, setUsermail] = useState('');
     const [name, setName] = useState("reorder-three-outline");
     const rotateValue = useRef(new Animated.Value(0)).current;
     const spin = rotateValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
+    const slideAnim = useRef(new Animated.Value(500)).current; // Start 200px below
+
+    const slideUp = () => {
+        Animated.timing(slideAnim, {
+            toValue: 0, // Final position
+            duration: 500,
+            useNativeDriver: true, // Smoother animation
+        }).start();
+    };
+
+    const slideDown = () => {
+        Animated.timing(slideAnim, {
+            toValue: 500, // Move back down
+            duration: 500,
+            useNativeDriver: true,
+        }).start();
+    };
     useEffect(() => {
         rotateValue.setValue(0);
         Animated.loop(Animated.timing(rotateValue, {
@@ -30,6 +49,15 @@ export default function mainpage() {
             useNativeDriver: true
         })).start();
     }, [])
+
+    useEffect(() => {
+        if (comments) {
+            slideUp();
+        }
+        else {
+            slideDown();
+        }
+    }, [comments])
 
     useEffect(() => {
         const fetch_user_mail = async () => {
@@ -58,6 +86,17 @@ export default function mainpage() {
 
     }, [])
 
+    const handle_fetchPosts = async () => {
+        const response = await axios.get("https://literasocial.onrender.com/Posts");
+        setPosts(response.data.Data);
+    }
+
+    const Onrefresh = () => {
+        setRefresh(true);
+        setPosts([]);
+        handle_fetchPosts().finally(() => setRefresh(false));
+    }
+
 
 
     const handlenav = () => {
@@ -84,6 +123,7 @@ export default function mainpage() {
         if (options) {
             setOptions(!options);
         }
+        setComments(false);
     }
 
     let cooldown = false;
@@ -136,6 +176,24 @@ export default function mainpage() {
     }
 
 
+    const handle_report = async (id) => {
+        try {
+            const response = await axios.post("https://literasocial.onrender.com/report", {
+                id: id,
+                email: usermail,
+                posttype: "POST"
+            });
+            console.log(response)
+            if (options) {
+                setOptions(!options);
+            }
+            setComments(false);
+        }
+        catch (error) {
+            console.error("Error found:", error)
+        }
+    }
+
 
     useEffect(() => {
         const saveLikes = async () => {
@@ -145,7 +203,7 @@ export default function mainpage() {
     }, [liked])
 
     return (
-        <View style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
+        <Pressable onPress={() => { setComments(false) }} style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
             <View style={{ width: "100%", height: 100, paddingTop: 20, position: "fixed", display: "flex", flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "lightgray" }}>
                 <Ionicons name="book-outline" color={"black"} size={24} style={{ fontWeight: 600, paddingLeft: 26, paddingTop: 5 }} />
                 <Text style={{ fontSize: 24, fontWeight: 600, paddingLeft: 10 }}>LiteraSocial</Text>
@@ -206,7 +264,7 @@ export default function mainpage() {
                         <Text style={{ color: "gray", fontSize: 15 }}>"The best stories are the ones that remind us why we fell in love with words in the first place."</Text>
                         <Text style={{ color: "black", fontSize: 17, fontWeight: 500 }}>Explore featured collections →</Text>
                     </View>
-                    {posts.length < 1 ? <Pressable style={{ marginLeft:"5%", minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 20, borderRadius: 10, position: 'relative' }}>
+                    {posts.length < 1 ? <Pressable style={{ marginLeft: "5%", minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 20, borderRadius: 10, position: 'relative' }}>
                         <View style={{ width: "100%", padding: 15, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start" }}>
                             <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>
                             <View style={{ display: 'flex', flexDirection: "column", padding: 10, gap: 10 }}>
@@ -235,7 +293,7 @@ export default function mainpage() {
                 renderItem={({ item }) => (
                     <Pressable onPress={checkOptions} style={{ minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 0, borderRadius: 10, position: 'relative' }}>
                         {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 100000000, borderRadius: 10, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", position: "absolute" }}>
-                            <Pressable onPress={checkOptions} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
+                            <Pressable onPress={() => handle_report(item._id)} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
                                 <Text style={{ color: "white", fontSize: 13 }}>Report</Text>
                             </Pressable>
                         </View> : null}
@@ -256,11 +314,11 @@ export default function mainpage() {
                                 {item.content}</Text>
                         </View>
                         <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, maxWidth: "100%", minWidth: "100%", paddingLeft: 30, borderTopWidth: 1, borderTopColor: "lightgray", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-                            <Pressable onPressIn={() => setlikedAnimations(true)} onPressOut={() => setlikedAnimations(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name={liked.some(count => count.id == item._id) ? "heart" : "heart-outline"} size={likedanimation ? 27 : 25} color={liked.some(count => count.id == item._id) ? "red" : "black"} />
+                            <Pressable onPressIn={() => setlikedAnimations({ id: item._id })} onPressOut={() => setlikedAnimations(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                                <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id---------------------------------------------------------------------------------------- ? "heart" : "heart-outline"} size={likedanimation.id == item._id ? 27 : 25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id) ? item.likes + 1 : item.likes}</Text>
                             </Pressable>
-                            <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                            <Pressable onPress={() => setComments(!comments)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.comments}</Text>
                             </Pressable>
@@ -274,6 +332,9 @@ export default function mainpage() {
                 ListFooterComponent={<>
                     {posts.length > 2 && <Animated.View style={[{ width: 30, height: 30, borderWidth: 1.5, borderBottomWidth: 0, borderLeftWidth: 0, borderColor: 'black', borderTopColor: '#333', borderRadius: 20 }, { transform: [{ rotate: spin }] }]}></Animated.View>}
                 </>}
+                refreshControl={
+                    <RefreshControl refreshing={refresh} onRefresh={Onrefresh} />
+                }
             />
             <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "13%" }}>
                 <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home" size={22} color={"black"} />
@@ -282,11 +343,28 @@ export default function mainpage() {
                 <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={22} color={"black"} />
                 <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
             </View>
+            <Animated.View style={[{ width: "100%", height: "50%", position: "absolute", bottom: 0, left: 0, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 999999999, display: 'flex', alignItems: 'center' }, { transform: [{ translateY: slideAnim }], }]}>
+                <Pressable style={{ width: "40%", height: 4, marginTop: 10, backgroundColor: "lightgray", borderRadius: 20 }}></Pressable>
+                <Text style={{ paddingTop: 15, fontSize: 20, fontWeight: 600 }}>Comments</Text>
+                <Pressable style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 10, marginTop: 20 }}>
+                    <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
+                        <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>
+                        <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10, gap: 10 }}>
+                            <Text style={{ fontSize: 15, fontWeight: 500, textAlign: "left", backgroundColor: "lightgray", borderRadius: 20, color: "lightgray" }}>VoiceOfYouth</Text>
+                            <Text style={{ fontSize: 12, color: "lightgray", padding: 0, backgroundColor: "lightgray", borderRadius: 20 }}>user112</Text>
+                        </View>
+                        <Ionicons name="ellipsis-horizontal-outline" size={20} color={"lightgray"} style={{ position: "absolute", right: 30, zIndex: 1000000000, backgroundColor: "lightgray" }} />
+                    </View>
+                    <View style={{ paddingTop: 90, width: "100%", display: "flex", alignItems: 'center', justifyContent: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: "lightgray", borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
+                        <Text style={{ textAlign: "left", fontSize: 8, fontWeight: 500, lineHeight: 25, padding: 10, backgroundColor: "lightgray", borderRadius: 50, color: "lightgray" }}>The student protests spreading across campuses aren't just about tuition hikes </Text>
+                    </View>
+                </Pressable>
+            </Animated.View>
             {addpost && <AddPost />}
             <View style={{ padding: 30 }}>
 
             </View>
-        </View>
+        </Pressable>
     )
 
 }

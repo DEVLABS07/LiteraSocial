@@ -50,6 +50,11 @@ class likes(BaseModel):
     like: List[likeItem]
     email: str
     
+class Report(BaseModel):
+    id: str
+    email: str
+    posttype: str
+    
 @app.post("/signin")
 async def signin(data:Signin):
     name = data.username   
@@ -102,3 +107,13 @@ async def handle_likes(data:likes):
     for likedposts in likes_list:
         finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts.id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
     return {"message": "Like Updated Successfully"}
+@app.post("/report")
+async def handle_report(data:Report):
+    post_id = data.id
+    email = data.email
+    posttype = data.posttype
+    if posttype == "POST":
+        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(post_id)},{"$addToSet": {"reporters":email},"$inc": {"report": 1}}, return_document=True)
+    else:
+        finalresponse = await thoughts.find_one_and_update({"_id": ObjectId(post_id)},{"$addToSet": {"reporters":email},"$inc": {"report": 1}}, return_document=True)        
+    return {"message": "Post Reported Successfully"}
