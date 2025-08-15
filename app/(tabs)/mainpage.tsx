@@ -360,11 +360,11 @@ export default function mainpage() {
                             </Pressable>
                             <Pressable onPress={() => setComments(!comments)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.comments}</Text>
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.comments,false)}</Text>
                             </Pressable>
                             <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="paper-plane-outline" size={25} color={"black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.share}</Text>
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.share,false)}</Text>
                             </Pressable>
                             <Pressable onPress={() => handleSpeech(item.content, item._id)} style={{ position: "absolute", right: 20, top: 23 }}>
                                 <Ionicons name={voiceState.id == item._id ? "mic-off-outline" : "mic-outline"} size={20} color={"black"} />

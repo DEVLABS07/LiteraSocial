@@ -9,7 +9,7 @@ export default function Search() {
     const [data, setData] = useState(['']);
     return (
         <View style={{ flex: 1, backgroundColor: "white", display: "flex", alignItems: 'center', paddingTop: 50 }}>
-            <TextInput style={{ width: "80%", height: 50, borderWidth: 1, borderColor: "black", borderRadius: 20, padding: 10, paddingLeft: 15, paddingRight: 15 }} placeholder="Search for Poems, stories, users..." />
+            <TextInput style={{ width: "90%", height: 50, borderWidth: 1, borderColor: "gray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20 }} placeholder="Search for Poems, Stories, Users..." />
             <Pressable style={{ display: "flex", alignItems: 'center', flexDirection: 'row', width: "100%", justifyContent: "center", paddingTop: 30, gap: "15%" }}>
                 <Pressable onPress={() => setOption("l")} style={{ padding: 21, backgroundColor: option == "l"?"black":"white",borderWidth: 1, borderColor: option == "l"?"white":"black" ,borderRadius: 10 }}><Text style={{ color: option == "l"?"white":"black" }}>Literature</Text></Pressable>
                 <Pressable onPress={() => setOption("a")} style={{ padding: 20, backgroundColor: option == "a"?"black":"white" ,borderWidth: 1, borderColor: "black", borderRadius: 10 }}><Text style={{ color: option == "a"?"white":"black" }}>Accounts</Text></Pressable>

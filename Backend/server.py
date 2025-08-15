@@ -115,7 +115,7 @@ async def add_posts(data:Post):
 @app.post("/addthoughts")
 async def create_thought(thought: Thoughts):
     result = thoughts.insert_one(thought.dict())
-    return {"message": "Thought saved", "id": str(result.inserted_id)}
+    return {"message": "Thought saved"}
 
 
 @app.post("/likes")
