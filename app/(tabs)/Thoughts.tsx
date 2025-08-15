@@ -133,22 +133,27 @@ export default function Thoughts() {
 
     const add_thoughts = async () => {
         try {
+            const date = new Date;
+            const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            console.log(time);
             const response = await axios.post("https://literasocial.onrender.com/addthoughts", {
                 Email: 'jram6269@gmail.com',
-                username: "jram",
-                userid: "itz_jram18",
-                tag: "thoughts",
-                content: userThought,
-                likes: 0,
-                comments: 0,
-                shares: 0
+                Username: "jram",
+                Userid: "itz_jram18",
+                Tag: "thoughts",
+                Thought: userThought,
+                Likes: 0,
+                Comments: 0,
+                Shares: 0,
+                Time: time
             })
             console.log(response.data);
-            Alert.alert("Thought posted successfully","Have another thought?");
-        } catch(error){
-            console.error("Error:",error);
+            Alert.alert("Thought posted successfully", "Have another thought?");
+            setUserThought("");
+        } catch (error) {
+            console.error("Error:", error);
         }
-        
+
 
     }
 

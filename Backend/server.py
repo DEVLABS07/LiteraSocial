@@ -57,15 +57,15 @@ class Report(BaseModel):
     
 class Thoughts(BaseModel):
     Email: str
-    username: str
-    userid: str
-    tag: str
-    content: str
-    likes: int
-    comments: int
-    shares: int
-    
-    
+    Username: str
+    UserId: str
+    Tag: str
+    Thought: str
+    Likes: int
+    Comments: int
+    Shares: int
+    Time: str 
+        
 @app.post("/signin")
 async def signin(data:Signin):
     name = data.username   
