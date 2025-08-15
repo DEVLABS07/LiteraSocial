@@ -55,6 +55,17 @@ class Report(BaseModel):
     email: str
     posttype: str
     
+class Thoughts(BaseModel):
+    Email: str
+    username: str
+    userid: str
+    tag: str
+    content: str
+    likes: int
+    comments: int
+    shares: int
+    
+    
 @app.post("/signin")
 async def signin(data:Signin):
     name = data.username   
@@ -99,6 +110,13 @@ async def get_posts():
 async def add_posts(data:Post):
     response = await Posts.insert_one({"Email":data.Email, "Username": data.Username, "UserId": data.Userid, "tag": data.tag,"heading": data.heading ,"content": data.content, "likes":0, "comments":0, "share":0, "time": data.time})
     return {"Message": "Post Successfully saved"}
+
+
+@app.post("/addthoughts")
+async def create_thought(thought: Thoughts):
+    result = thoughts.insert_one(thought.dict())
+    return {"message": "Thought saved", "id": str(result.inserted_id)}
+
 
 @app.post("/likes")
 async def handle_likes(data:likes):

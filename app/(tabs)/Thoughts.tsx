@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, FlatList, Pressable, RefreshControl, Text, TextInput, View } from "react-native";
+import { Alert, Animated, Easing, FlatList, Pressable, RefreshControl, Text, TextInput, View } from "react-native";
 
 
 export default function Thoughts() {
@@ -22,7 +24,9 @@ export default function Thoughts() {
     const [thoughts, setThoughts] = useState([]);
     const [refresh, setRefresh] = useState(false);
     const [liked, setLiked] = useState([{}]);
-    const [likedAni, setLikedAni] = useState(false);
+    const [likedAni, setLikedAni] = useState({});
+    const [usermail, setUsermail] = useState('');
+    const [userThought, setUserThought] = useState('');
     const [options, setOptions] = useState({});
     const [name, setName] = useState("reorder-three-outline");
     const handlenav = () => {
@@ -44,8 +48,13 @@ export default function Thoughts() {
             })
             const data = await response.json();
             setThoughts(prev => [...prev, ...data.Data]);
+            const poss = await AsyncStorage.getItem("usermail");
+            poss ? setUsermail(poss) : null;
+            console.log(poss);
         }
         handleSave();
+
+
     }, [])
 
 
@@ -96,6 +105,23 @@ export default function Thoughts() {
             setOptions(!options);
         }
     }
+    const handle_report = async (id) => {
+        try {
+            const response = await axios.post("https://literasocial.onrender.com/report", {
+                id: id,
+                email: usermail,
+                posttype: "POST"
+            });
+            console.log(response)
+            if (options) {
+                setOptions(!options);
+            }
+            Alert.alert("Report", "Post Reported Successfully");
+        }
+        catch (error) {
+            console.error("Error found:", error)
+        }
+    }
 
     const handleLikes = (item) => {
         if (liked.some(count => count.id == item._id)) {
@@ -105,7 +131,26 @@ export default function Thoughts() {
         }
     }
 
+    const add_thoughts = async () => {
+        try {
+            const response = await axios.post("https://literasocial.onrender.com/addthoughts", {
+                Email: 'jram6269@gmail.com',
+                username: "jram",
+                userid: "itz_jram18",
+                tag: "thoughts",
+                content: userThought,
+                likes: 0,
+                comments: 0,
+                shares: 0
+            })
+            console.log(response.data);
+            Alert.alert("Thought posted successfully","Have another thought?");
+        } catch(error){
+            console.error("Error:",error);
+        }
+        
 
+    }
 
     return (
         <View style={{ flex: 1, position: "relative", backgroundColor: "white", display: "flex" }} >
@@ -128,9 +173,6 @@ export default function Thoughts() {
                     <Text style={{ fontSize: 20, fontWeight: 400, paddingRight: 18 }}>AI Chat</Text>
                 </Pressable>
             </View>}
-            <View style={{ width: "100%", height: 100, position: "absolute", bottom: 80, left: 0, backgroundColor: "black", borderTopLeftRadius: 20, borderTopRightRadius: 20, zIndex: 900000000000, display: 'flex', alignItems: 'center' }}>
-                <Text>Comments</Text>
-            </View>
 
             {thoughts && <FlatList
                 data={thoughts}
@@ -144,8 +186,8 @@ export default function Thoughts() {
                                     <Ionicons name="bulb-outline" size={20} color={"gold"} />
                                     <Text style={{ fontSize: 18, fontWeight: 500 }}>Share a thought</Text>
                                 </View>
-                                <TextInput multiline textAlignVertical="top" style={{ minWidth: "80%", padding: 15, borderWidth: 1, borderColor: "lightgray", borderRadius: 10, width: "80%", height: 100 }} placeholder="What's on your mind? Share your thoughts, insights or reflections..."></TextInput>
-                                <Pressable style={{ padding: 10, paddingTop: 15, paddingBottom: 15, backgroundColor: "black", borderRadius: 10, display: 'flex', flexDirection: 'row', gap: 10, alignSelf: 'flex-end', marginTop: 20, marginRight: 15 }}>
+                                <TextInput value={userThought} onChangeText={setUserThought} multiline textAlignVertical="top" style={{ minWidth: "80%", padding: 15, borderWidth: 1, borderColor: "lightgray", borderRadius: 10, width: "80%", height: 100 }} placeholder="What's on your mind? Share your thoughts, insights or reflections..."></TextInput>
+                                <Pressable onPress={add_thoughts} style={{ padding: 10, paddingTop: 15, paddingBottom: 15, backgroundColor: "black", borderRadius: 10, display: 'flex', flexDirection: 'row', gap: 10, alignSelf: 'flex-end', marginTop: 20, marginRight: 15 }}>
                                     <Ionicons name="paper-plane-outline" size={20} color={"white"} />
                                     <Text style={{ color: "white" }}>Share Thought</Text>
                                 </Pressable>
@@ -188,7 +230,7 @@ export default function Thoughts() {
                 renderItem={({ item }) => (
                     <Pressable onPress={checkOptions} style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', marginTop: 0, borderRadius: 10 }}>
                         {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 10000000001, borderRadius: 10, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", position: "absolute", }}>
-                            <Pressable onPress={checkOptions} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
+                            <Pressable onPress={handle_report} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
                                 <Text style={{ color: "white", fontSize: 13 }}>Report</Text>
                             </Pressable>
                         </View> : null}
@@ -205,8 +247,8 @@ export default function Thoughts() {
                                 {item.Thought}</Text>
                         </View>
                         <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, width: "100%", paddingLeft: 20 }}>
-                            <Pressable onPressIn={() => setLikedAni(true)} onPressOut={() => setLikedAni(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name={liked.some(count => count.id == item._id) || likedAni ? "heart" : "heart-outline"} size={likedAni ? 27 : 25} color={liked.some(count => count.id == item._id) || likedAni ? "red" : "black"} />
+                            <Pressable onPressIn={() => setLikedAni({ id: item._id })} onPressOut={() => setLikedAni(!likedAni)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                                <Ionicons name={liked.some(count => count.id == item._id) || likedAni.id == item._id ? "heart" : "heart-outline"} size={likedAni.id == item._id ? 27 : 25} color={liked.some(count => count.id == item._id) || likedAni.id == item._id ? "red" : "black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.Likes}</Text>
                             </Pressable>
                             <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>

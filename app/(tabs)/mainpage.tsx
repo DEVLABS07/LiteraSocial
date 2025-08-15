@@ -2,8 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useRouter } from "expo-router";
+import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from "react";
-import { Animated, Easing, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
+import { Alert, Animated, Easing, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
 import AddPost from "./AddPost";
 
 
@@ -18,6 +19,7 @@ export default function mainpage() {
     const [comments, setComments] = useState(false);
     const [addpost, setAddpost] = useState(false);
     const [likedanimation, setlikedAnimations] = useState({});
+    const [voiceState, setVoiceState] = useState({});
     const [options, setOptions] = useState({});
     const [usermail, setUsermail] = useState('');
     const [name, setName] = useState("reorder-three-outline");
@@ -173,6 +175,7 @@ export default function mainpage() {
             setlikedQueue([]);
             console.log("Flush Activated");
         }
+        formatCount(item.likes, true);
     }
 
 
@@ -188,9 +191,14 @@ export default function mainpage() {
                 setOptions(!options);
             }
             setComments(false);
+            Alert.alert("Report", "Post Reported Successfully");
         }
         catch (error) {
-            console.error("Error found:", error)
+            console.error("Error found:", error);
+            if (options) {
+                setOptions(!options);
+            }
+            setComments(false);
         }
     }
 
@@ -201,6 +209,38 @@ export default function mainpage() {
         }
         saveLikes()
     }, [liked])
+
+
+    const handleSpeech = (message, id) => {
+        if (voiceState) {
+            if (voiceState.id == id) {
+                setVoiceState(!voiceState);
+                Speech.stop();
+                return;
+            } else {
+                Speech.stop();
+            }
+        }
+        Speech.speak(message, { pitch: 1.2, rate: 0.9 });
+        setVoiceState({ id: id });
+    }
+
+    const formatCount = (num, liked) => {
+        if (num < 1000) {
+            if (liked) {
+                return (num+1).toString();
+            } else {
+                return num.toString()
+            }
+        }
+
+        const units = ["", "K", "M", "B", "T"];
+        const order = Math.floor(Math.log10(num) / 3);
+        const unitname = units[order];
+        const scaled = num / Math.pow(1000, order);
+
+        return scaled % 1 === 0 ? scaled + unitname : scaled.toFixed(1) + unitname;
+    }
 
     return (
         <Pressable onPress={() => { setComments(false) }} style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
@@ -313,10 +353,10 @@ export default function mainpage() {
                             <Text style={{ textAlign: "left", paddingLeft: 0, fontSize: 14, fontWeight: 500, lineHeight: 25 }}>
                                 {item.content}</Text>
                         </View>
-                        <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, maxWidth: "100%", minWidth: "100%", paddingLeft: 30, borderTopWidth: 1, borderTopColor: "lightgray", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+                        <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, maxWidth: "100%", minWidth: "100%", position: "relative", paddingLeft: 30, borderTopWidth: 1, borderTopColor: "lightgray", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
                             <Pressable onPressIn={() => setlikedAnimations({ id: item._id })} onPressOut={() => setlikedAnimations(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id---------------------------------------------------------------------------------------- ? "heart" : "heart-outline"} size={likedanimation.id == item._id ? 27 : 25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id) ? item.likes + 1 : item.likes}</Text>
+                                <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "heart" : "heart-outline"} size={likedanimation.id == item._id ? 27 : 25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id)?formatCount(item.likes, true):formatCount(item.likes, false)}</Text>
                             </Pressable>
                             <Pressable onPress={() => setComments(!comments)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
@@ -325,6 +365,9 @@ export default function mainpage() {
                             <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="paper-plane-outline" size={25} color={"black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{item.share}</Text>
+                            </Pressable>
+                            <Pressable onPress={() => handleSpeech(item.content, item._id)} style={{ position: "absolute", right: 20, top: 23 }}>
+                                <Ionicons name={voiceState.id == item._id ? "mic-off-outline" : "mic-outline"} size={20} color={"black"} />
                             </Pressable>
                         </View>
                     </Pressable>
