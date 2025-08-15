@@ -139,7 +139,7 @@ export default function Thoughts() {
             const response = await axios.post("https://literasocial.onrender.com/addthoughts", {
                 Email: 'jram6269@gmail.com',
                 Username: "jram",
-                Userid: "itz_jram18",
+                UserId: "itz_jram18",
                 Tag: "thoughts",
                 Thought: userThought,
                 Likes: 0,
@@ -243,7 +243,7 @@ export default function Thoughts() {
                             <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
                             <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10 }}>
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: "left" }}>{item.Username}</Text>
-                                <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.Time}</Text>
+                                <Text style={{ fontSize: 12, color: "gray", paddingTop: 5 }}>{item.Time}</Text>
                             </View>
                             <Ionicons onPress={() => { setOptions({ id: item._id }) }} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "absolute", right: 30, zIndex: 1000000000 }} />
                         </View>

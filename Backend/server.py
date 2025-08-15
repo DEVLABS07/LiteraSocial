@@ -94,7 +94,7 @@ async def handle_login(data:Login):
     
 @app.get("/thoughts")
 async def handle_thoughts():
-    data = await thoughts.find().to_list(length=None)
+    data = await thoughts.find().sort("time", -1).limit(10).to_list(length=10)
     for item in data:
         item['_id'] = str(item['_id'])
     return {"Data": data}
