@@ -65,6 +65,8 @@ class Thoughts(BaseModel):
     Comments: int
     Shares: int
     Time: str 
+class sort(BaseModel):
+    method: str       
         
 @app.post("/signin")
 async def signin(data:Signin):
@@ -99,9 +101,19 @@ async def handle_thoughts():
         item['_id'] = str(item['_id'])
     return {"Data": data}
 
-@app.get("/Posts")
-async def get_posts():
-    data = await Posts.find().sort("time", -1).limit(10).to_list(length=10)
+@app.post("/Posts")
+async def get_posts(data:sort):
+    method = data.method
+    if method == "latest":
+        data = await Posts.find().sort("time", -1).limit(10).to_list(length=10)
+    elif method == "trend":
+        data = await Posts.find().sort("likes", -1).limit(10).to_list(length=10)
+    elif method == "poems": 
+        data = await Posts.find({"tag":"poetry"}).limit(10).to_list(length=10)
+    elif method == "stories":
+        data = await Posts.find({"tag": "story"}).limit(10).to_list(length=10)
+    else:
+        return{"Data":"Sorting method not specified"}    
     for posts in data:
         posts['_id'] = str(posts['_id'])
     return {"Data": data}
