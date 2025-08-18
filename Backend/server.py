@@ -49,6 +49,7 @@ class likes(BaseModel):
     id: str
     email: str
     type: str
+    content: str
     
 class Report(BaseModel):
     id: str
@@ -147,10 +148,17 @@ async def handle_likes(data:likes):
     type = data.type
     print(type)
     if type == "unliked":
-        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(id)}, {"$pull": {"likers": email},"$inc": {"likes": -1}}, return_document=True)
+        if data.content == "post":
+            finalresponse = await Posts.find_one_and_update({"_id": ObjectId(id)}, {"$pull": {"likers": email},"$inc": {"likes": -1}}, return_document=True)
+        else:
+            finalresponse = await thoughts.find_one_and_update({"_id": ObjectId(id)}, {"$pull": {"likers": email},"$inc": {"likes": -1}}, return_document=True)            
         return{"message": "Unlike Updated Successfully"}
-    else:     
-        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+    else: 
+        if data.content == "post":    
+            finalresponse = await Posts.find_one_and_update({"_id": ObjectId(id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+        else:
+            finalresponse = await thoughts.find_one_and_update({"_id": ObjectId(id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+
         return{"message": "Like Updated Successfully"}
 
 
