@@ -49,6 +49,7 @@ class likeItem(BaseModel):
 class likes(BaseModel):
     like: List[likeItem]
     email: str
+    type: str
     
 class Report(BaseModel):
     id: str
@@ -67,7 +68,17 @@ class Thoughts(BaseModel):
     Time: str 
 class sort(BaseModel):
     method: str       
-        
+class add_Comments(BaseModel):
+    postId: str
+    Email: str
+    Username: str
+    UserId: str
+    Comment: str
+    Time: str 
+class SearchRequest(BaseModel):
+    search: str
+    type: str
+
 @app.post("/signin")
 async def signin(data:Signin):
     name = data.username   
@@ -86,7 +97,7 @@ async def handle_login(data:Login):
     password = data.Password
     found = await login.find_one({"Email": email})
     if found:
-        if pass_context.verify(password, found["Password"]) :
+        if pass_context.verify(password, found["Password"]):
             return {"Message": "Login Successful", "id": 123}
         else:
             return {"Message": "Invalid Credentials", "id": 4}
@@ -134,9 +145,17 @@ async def create_thought(thought: Thoughts):
 async def handle_likes(data:likes):
     likes_list = data.like
     email = data.email
+    type = data.type
     for likedposts in likes_list:
-        finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts.id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
+        if type == "unliked":
+            finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts.id)}, {"$pull": {"likers": email},"$inc": {"likes": -1}}, return_document=True)
+            return {"message": "Unlike Updated Successfully"}
+        else:     
+            finalresponse = await Posts.find_one_and_update({"_id": ObjectId(likedposts.id)}, {"$addToSet": {"likers":email},"$inc": {"likes": 1}}, return_document=True)
     return {"message": "Like Updated Successfully"}
+
+
+
 @app.post("/report")
 async def handle_report(data:Report):
     post_id = data.id
@@ -147,3 +166,25 @@ async def handle_report(data:Report):
     else:
         finalresponse = await thoughts.find_one_and_update({"_id": ObjectId(post_id)},{"$addToSet": {"reporters":email},"$inc": {"report": 1}}, return_document=True)        
     return {"message": "Post Reported Successfully"}
+
+
+@app.post("/comment")
+async def handle_tests(data: add_Comments):
+    comment = {"email": data.Email, "username": data.Username, "userid": data.UserId, "comment":data.Comment, "time": data.Time}
+    finalresponse = await Posts.find_one_and_update({"_id": ObjectId(data.postId)}, {"$addToSet": {"comments-text": comment},"$inc": {"comments": 1}}, return_document=True)
+    return {"message": "Comments successfully saved"}
+
+@app.post("/search")
+async def search_data(payload: SearchRequest):
+    type = payload.type
+    if type == "post":
+       query = {"title": {"$regex": payload.search, "$options": "i"}}  
+       results = await Posts.find(query).to_list(length=None)
+       return {"results": results}
+    elif type == "user":
+       results = await login.find({"Username": payload.search}).to_list(length=None)
+       for result in results:
+           result["_id"] = str(result["_id"])
+       return {"results": results}
+    else:
+        return{"data": " Search Type not specified"}

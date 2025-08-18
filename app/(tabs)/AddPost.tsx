@@ -10,6 +10,7 @@ export default function AddPost() {
     const [content, setContent] = useState('');
 
     const handle_addPost = async () => {
+        if(!content.trim() || !heading.trim() || !tag.trim()) return;
         const date = new Date();
         const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) 
         const response = await axios.post("https://literasocial.onrender.com/addPost", {
@@ -63,7 +64,7 @@ export default function AddPost() {
                     </View>
                     <TextInput value={content} onChangeText={setContent} multiline textAlignVertical="top" style={{ width: "90%", height: 150, borderWidth: 1, borderColor: "lightgray", padding: 10, borderRadius: 10 }} placeholder="Pour your thoughts on this digital mauscript..." />
                 </View>
-                <Pressable onPress={handle_addPost} style={{ padding: 15, backgroundColor: "black", display: "flex", flexDirection: "row", width: "50%", borderRadius: 10, gap: 10, alignSelf: "flex-end", marginRight: 20, marginTop: 20 }}>
+                <Pressable onPress={handle_addPost} style={{ padding: 15, backgroundColor: content.trim() && heading.trim() && tag.trim()?"black":"lightgray", display: "flex", flexDirection: "row", width: "50%", borderRadius: 10, gap: 10, alignSelf: "flex-end", marginRight: 20, marginTop: 20 }}>
                     <Ionicons name={"document-outline"} size={15} color={"white"} style={{ marginTop: 2 }} />
                     <Text style={{ color: "white", fontWeight: 600 }}>Publish Literature</Text>
                 </Pressable>

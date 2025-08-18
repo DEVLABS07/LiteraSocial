@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from "react";
-import { Alert, Animated, Easing, FlatList, Pressable, RefreshControl, Text, View } from "react-native";
+import { Alert, Animated, Easing, FlatList, Pressable, RefreshControl, Text, TextInput, TouchableOpacity, View } from "react-native";
 import AddPost from "./AddPost";
 
 
@@ -18,14 +18,20 @@ export default function mainpage() {
     const [loader, setLoader] = useState(false);
     const [comments, setComments] = useState(false);
     const [addpost, setAddpost] = useState(false);
+    const [comment, setComment] = useState([{}, {}, {}, {}, {}]);
     const [likedanimation, setlikedAnimations] = useState({});
     const [voiceState, setVoiceState] = useState({});
+    const [simple, setSimple] = useState(false);
     const [options, setOptions] = useState({});
+    const [filters, setFilters] = useState('Latest');
     const [usermail, setUsermail] = useState('');
     const [name, setName] = useState("reorder-three-outline");
     const rotateValue = useRef(new Animated.Value(0)).current;
     const spin = rotateValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] })
     const slideAnim = useRef(new Animated.Value(500)).current; // Start 200px below
+
+
+
 
     const slideUp = () => {
         Animated.timing(slideAnim, {
@@ -72,7 +78,7 @@ export default function mainpage() {
         }
         fetch_user_mail();
         const handle_fetchPosts = async () => {
-            const response = await axios.get("https://literasocial.onrender.com/Posts");
+            const response = await axios.post("https://literasocial.onrender.com/Posts", { method: "latest" });
             setPosts(prev => [...prev, ...response.data.Data]);
         }
         handle_fetchPosts();
@@ -88,15 +94,16 @@ export default function mainpage() {
 
     }, [])
 
-    const handle_fetchPosts = async () => {
-        const response = await axios.get("https://literasocial.onrender.com/Posts");
+    const handle_fetchPosts = async (method) => {
+        setPosts([]);
+        const response = await axios.post("https://literasocial.onrender.com/Posts", { method: method });
         setPosts(response.data.Data);
     }
 
     const Onrefresh = () => {
         setRefresh(true);
         setPosts([]);
-        handle_fetchPosts().finally(() => setRefresh(false));
+        handle_fetchPosts("latest").finally(() => setRefresh(false));
     }
 
 
@@ -135,7 +142,7 @@ export default function mainpage() {
         setLoader(true);
         cooldown = true;
         try {
-            const response = await axios.get("https://literasocial.onrender.com/Posts");
+            const response = await axios.post("https://literasocial.onrender.com/Posts", { method: "latest" });
             setPosts(prev => [...prev, ...response.data.Data]);
         }
         catch (error) {
@@ -148,11 +155,12 @@ export default function mainpage() {
     }
 
 
-    const flushLikes = async () => {
+    const flushLikes = async (type) => {
         try {
             const response = await axios.post("https://literasocial.onrender.com/likes", {
                 like: likedQueue,
-                email: usermail
+                email: usermail,
+                type: type
             });
             console.log(response.data);
         }
@@ -165,17 +173,15 @@ export default function mainpage() {
         if (liked.some(count => count.id == item._id)) {
             setLiked(liked.filter(post => post.id != item._id));
             setlikedQueue(likedQueue.filter(post => post.id != item._id));
+            flushLikes("unliked");
+            return;
         } else {
             setLiked(prev => [...prev, { id: item._id }])
             setlikedQueue(prev => [...prev, { id: item._id }]);
-        }
-        if (likedQueue.length > 3) {
-            console.log("Lenght limit exceeded");
-            flushLikes();
+            flushLikes("liked");
             setlikedQueue([]);
             console.log("Flush Activated");
         }
-        formatCount(item.likes, true);
     }
 
 
@@ -228,7 +234,7 @@ export default function mainpage() {
     const formatCount = (num, liked) => {
         if (num < 1000) {
             if (liked) {
-                return (num+1).toString();
+                return (num + 1).toString();
             } else {
                 return num.toString()
             }
@@ -240,6 +246,25 @@ export default function mainpage() {
         const scaled = num / Math.pow(1000, order);
 
         return scaled % 1 === 0 ? scaled + unitname : scaled.toFixed(1) + unitname;
+    }
+
+    const handle_custom_logo = (string) => {
+        let logo = "";
+        logo += string[0].toUpperCase() + string[1].toUpperCase();
+        return logo;
+    }
+
+    const handle_comments = async (id) => {
+        const date = new Date;
+        const time = date.toLocaleTimeString();
+        const response = await axios.post("http://127.0.0.1:8000/comment", {
+            postId: id,
+            Email: "jram6269@gmail.com",
+            Username: "Jayaram",
+            UserId: "itz_jram18",
+            Comment: "You are a piece of shit",
+            Time: time
+        })
     }
 
     return (
@@ -279,31 +304,31 @@ export default function mainpage() {
                         </View>
                     </View>
                     <View style={{ marginLeft: "5%", width: "90%", gap: 5, marginTop: 20, borderWidth: 1, borderColor: "lightgray", borderRadius: 10, padding: 10, backgroundColor: "#e3e3e334", display: "flex", alignItems: 'center', flexDirection: "row" }}>
-                        <Pressable style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, marginLeft: 3, padding: 10, backgroundColor: "black", borderRadius: 10 }}>
-                            <Ionicons name="time-outline" size={15} style={{ paddingTop: 3 }} color={"white"} />
-                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: "white" }}>Latest</Text>
+                        <Pressable onPress={() => { setFilters("Latest"); handle_fetchPosts("latest") }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, marginLeft: 3, padding: 10, backgroundColor: filters == "Latest" ? "black" : "transparent", borderRadius: 10 }}>
+                            <Ionicons name="time-outline" size={15} style={{ paddingTop: 3 }} color={filters == "Latest" ? "white" : "black"} />
+                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: filters == "Latest" ? "white" : "black" }}>Latest</Text>
                         </Pressable>
-                        <Pressable style={{ display: "flex", flexDirection: "row", backgroundColor: "", borderRadius: 10, alignItems: "center", gap: 8, padding: 10, }}>
-                            <Ionicons name="trending-up-outline" size={15} style={{ paddingTop: 3 }} color={"black"} />
-                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: "black" }}>Trending</Text>
+                        <Pressable onPress={() => { setFilters("Trending"); handle_fetchPosts("trend") }} style={{ display: "flex", flexDirection: "row", backgroundColor: filters == "Trending" ? "black" : "transparent", borderRadius: 10, alignItems: "center", gap: 8, padding: 10, }}>
+                            <Ionicons name="trending-up-outline" size={15} style={{ paddingTop: 3 }} color={filters == "Trending" ? "white" : "black"} />
+                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: filters == "Trending" ? "white" : "black" }}>Trending</Text>
                         </Pressable>
-                        <Pressable style={{ display: "flex", flexDirection: "row", borderRadius: 10, backgroundColor: "", alignItems: "center", gap: 8, padding: 10, }}>
-                            <Ionicons name="book-outline" size={15} color={"black"} style={{ paddingTop: 3 }} />
-                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: "black" }}>Poems</Text>
+                        <Pressable onPress={() => { setFilters("Poems"); handle_fetchPosts("poems") }} style={{ display: "flex", flexDirection: "row", borderRadius: 10, alignItems: "center", gap: 8, padding: 10, backgroundColor: filters == "Poems" ? "black" : "transparent" }}>
+                            <Ionicons name="book-outline" size={15} color={filters == "Poems" ? "white" : "black"} style={{ paddingTop: 3 }} />
+                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: filters == "Poems" ? "white" : "black" }}>Poems</Text>
                         </Pressable>
-                        <Pressable style={{ display: "flex", flexDirection: "row", backgroundColor: "", borderRadius: 10, alignItems: "center", gap: 8, padding: 10, }}>
-                            <Ionicons name="book-outline" size={15} color={"black"} style={{ paddingTop: 3 }} />
-                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: "black", padding: 0 }}>Stories</Text>
+                        <Pressable onPress={() => { setFilters("Stories"); handle_fetchPosts("stories") }} style={{ display: "flex", flexDirection: "row", borderRadius: 10, alignItems: "center", gap: 8, padding: 10, backgroundColor: filters == "Stories" ? "black" : "transparent" }}>
+                            <Ionicons name="book-outline" size={15} color={filters == "Stories" ? "white" : "black"} style={{ paddingTop: 3 }} />
+                            <Text style={{ fontSize: 10.5, fontWeight: 500, color: filters == "Stories" ? "white" : "black", padding: 0 }}>Stories</Text>
                         </Pressable>
                     </View>
-                    <View style={{ marginLeft: "5%", width: "90%", borderWidth: 1, borderRadius: 10, borderColor: "lightgray", marginTop: 20, backgroundColor: "white", padding: 20, gap: 25 }}>
+                    <Pressable onPressIn={() => setSimple(true)} onPressOut={() => setSimple(false)} style={{ elevation: simple ? 6 : 0, marginLeft: "5%", width: "90%", borderWidth: 1, borderRadius: 10, borderColor: "lightgray", marginTop: 20, backgroundColor: "white", padding: 20, gap: 25 }}>
                         <View style={{ width: "100%", display: "flex", flexDirection: "row", alignItems: "center", gap: 10 }}>
                             <Ionicons name="at-circle-outline" size={20} color={"black"} />
                             <Text style={{ fontSize: 20, fontWeight: 500 }}>Featured Today</Text>
                         </View>
                         <Text style={{ color: "gray", fontSize: 15 }}>"The best stories are the ones that remind us why we fell in love with words in the first place."</Text>
                         <Text style={{ color: "black", fontSize: 17, fontWeight: 500 }}>Explore featured collections →</Text>
-                    </View>
+                    </Pressable>
                     {posts.length < 1 ? <Pressable style={{ marginLeft: "5%", minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 20, borderRadius: 10, position: 'relative' }}>
                         <View style={{ width: "100%", padding: 15, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start" }}>
                             <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>
@@ -332,13 +357,13 @@ export default function mainpage() {
                 onEndReachedThreshold={0.8}
                 renderItem={({ item }) => (
                     <Pressable onPress={checkOptions} style={{ minWidth: "90%", maxWidth: "90%", borderWidth: 1, borderColor: 'lightgray', display: "flex", marginTop: 0, borderRadius: 10, position: 'relative' }}>
-                        {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 100000000, borderRadius: 10, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", position: "absolute" }}>
+                        {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 100000000, borderRadius: 10, backgroundColor: "white", position: "absolute", elevation: 6 }}>
                             <Pressable onPress={() => handle_report(item._id)} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
                                 <Text style={{ color: "white", fontSize: 13 }}>Report</Text>
                             </Pressable>
                         </View> : null}
                         <View style={{ width: "100%", padding: 15, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start" }}>
-                            <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
+                            <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>{handle_custom_logo(item.Username)}</Text>
                             <View style={{ display: 'flex', flexDirection: "column", padding: 10 }}>
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: 'left', paddingLeft: 5 }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.time}</Text>
@@ -355,16 +380,16 @@ export default function mainpage() {
                         </View>
                         <View style={{ padding: 20, display: "flex", flexDirection: 'row', gap: 20, maxWidth: "100%", minWidth: "100%", position: "relative", paddingLeft: 30, borderTopWidth: 1, borderTopColor: "lightgray", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
                             <Pressable onPressIn={() => setlikedAnimations({ id: item._id })} onPressOut={() => setlikedAnimations(false)} onPress={() => handleLikes(item)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
-                                <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "heart" : "heart-outline"} size={likedanimation.id == item._id ? 27 : 25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id)?formatCount(item.likes, true):formatCount(item.likes, false)}</Text>
+                                <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "heart" : "heart-outline"} size={25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id) ? formatCount(item.likes, true) : formatCount(item.likes, false)}</Text>
                             </Pressable>
                             <Pressable onPress={() => setComments(!comments)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.comments,false)}</Text>
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.comments, false)}</Text>
                             </Pressable>
-                            <Pressable style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                            <Pressable onPress={() => handle_comments(item._id)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="paper-plane-outline" size={25} color={"black"} />
-                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.share,false)}</Text>
+                                <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.share, false)}</Text>
                             </Pressable>
                             <Pressable onPress={() => handleSpeech(item.content, item._id)} style={{ position: "absolute", right: 20, top: 23 }}>
                                 <Ionicons name={voiceState.id == item._id ? "mic-off-outline" : "mic-outline"} size={20} color={"black"} />
@@ -379,17 +404,49 @@ export default function mainpage() {
                     <RefreshControl refreshing={refresh} onRefresh={Onrefresh} />
                 }
             />
-            <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: "13%" }}>
-                <Ionicons onPress={() => router.push("/(tabs)/mainpage")} name="home" size={22} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Thoughts")} name="chatbox-outline" size={22} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Search")} name="search-outline" size={22} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Ai")} name="person-outline" size={22} color={"black"} />
-                <Ionicons onPress={() => router.push("/(tabs)/Profile")} name="person-circle-outline" size={22} color={"black"} />
+            <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", }}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/mainpage")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
+                    <Ionicons name="home" size={22} color={"black"} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/Thoughts")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
+                    <Ionicons name="chatbox-outline" size={22} color={"black"} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/Search")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
+                    <Ionicons name="search-outline" size={22} color={"black"} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/Ai")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
+                    <Ionicons name="person-outline" size={22} color={"black"} />
+                </TouchableOpacity>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/Profile")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
+                    <Ionicons name="person-circle-outline" size={22} color={"black"} />
+                </TouchableOpacity>
             </View>
-            <Animated.View style={[{ width: "100%", height: "50%", position: "absolute", bottom: 0, left: 0, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 999999999, display: 'flex', alignItems: 'center' }, { transform: [{ translateY: slideAnim }], }]}>
+            <Animated.View style={[{ width: "100%", height: "50%", position: "absolute", bottom: 0, left: 0, backgroundColor: "white", borderWidth: 1, borderColor: "lightgray", borderTopLeftRadius: 40, borderTopRightRadius: 40, zIndex: 999999999, display: 'flex', alignItems: 'center', paddingBottom: 90 }, { transform: [{ translateY: slideAnim }], }]}>
                 <Pressable style={{ width: "40%", height: 4, marginTop: 10, backgroundColor: "lightgray", borderRadius: 20 }}></Pressable>
-                <Text style={{ paddingTop: 15, fontSize: 20, fontWeight: 600 }}>Comments</Text>
-                <Pressable style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 10, marginTop: 20 }}>
+                <Text style={{ paddingTop: 15, paddingBottom: 15, fontSize: 20, fontWeight: 600 }}>Comments</Text>
+                <FlatList
+                    data={comment}
+                    keyExtractor={(item, key) => key.toString()}
+                    contentContainerStyle={{ alignItems: 'center', gap: 10 }}
+                    renderItem={({ item }) => (
+                        <Pressable style={{ minWidth: "95%", maxWidth: "95%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 20, marginTop: 20 }}>
+                            <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
+                                <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
+                                <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10, gap: 5 }}>
+                                    <Text style={{ fontSize: 13, fontWeight: 500, textAlign: "left", borderRadius: 20, color: "black" }}>VoiceOfYouth</Text>
+                                    <Text style={{ fontSize: 11, color: "gray", padding: 0, borderRadius: 20 }}>user112</Text>
+                                </View>
+                                <Ionicons name="ellipsis-horizontal-outline" size={20} color={"gray"} style={{ position: "absolute", right: 30, zIndex: 1000000000, }} />
+                            </View>
+                            <View style={{ paddingTop: 65, width: "100%", display: "flex", alignItems: 'center', justifyContent: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: "lightgray", borderRadius: 40 }}>
+                                <Text style={{ textAlign: "left", fontSize: 13, fontWeight: 500, lineHeight: 25, padding: 10, borderRadius: 50, color: "black" }}>The student protests spreading across campuses aren't just about tuition hikes </Text>
+                            </View>
+                        </Pressable>
+                    )}
+                />
+                <TextInput style={{ width: "95%", position: "absolute", bottom: 30, height: 45, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20, backgroundColor: "white" }} placeholder="Comment your thoughts..." />
+                <Ionicons name="paper-plane-sharp" size={20} color={"black"} style={{ position: "absolute", right: 35, bottom: 40 }} />
+                {loader && <Pressable style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 10, marginTop: 20 }}>
                     <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
                         <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>
                         <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10, gap: 10 }}>
@@ -401,7 +458,7 @@ export default function mainpage() {
                     <View style={{ paddingTop: 90, width: "100%", display: "flex", alignItems: 'center', justifyContent: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: "lightgray", borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
                         <Text style={{ textAlign: "left", fontSize: 8, fontWeight: 500, lineHeight: 25, padding: 10, backgroundColor: "lightgray", borderRadius: 50, color: "lightgray" }}>The student protests spreading across campuses aren't just about tuition hikes </Text>
                     </View>
-                </Pressable>
+                </Pressable>}
             </Animated.View>
             {addpost && <AddPost />}
             <View style={{ padding: 30 }}>
