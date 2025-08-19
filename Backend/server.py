@@ -181,6 +181,16 @@ async def handle_tests(data: add_Comments):
     finalresponse = await Posts.find_one_and_update({"_id": ObjectId(data.postId)}, {"$addToSet": {"comments-text": comment},"$inc": {"comments": 1}}, return_document=True)
     return {"message": "Comments successfully saved"}
 
+@app.post("/fetch-comments")
+async def fetch_comment(data: sort):
+    id = data.method
+    response = await Posts.find_one({"_id": ObjectId(id)})
+    if response["comments-text"]:
+        return {"data": response["comments-text"]}
+    else:
+        return {"data": "No comments found."}
+
+
 @app.post("/search")
 async def search_data(payload: SearchRequest):
     type = payload.type
