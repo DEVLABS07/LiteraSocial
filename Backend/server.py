@@ -168,6 +168,10 @@ async def handle_report(data:Report):
     post_id = data.id
     email = data.email
     posttype = data.posttype
+    response = await Posts.find_one({"_id": ObjectId(post_id)})
+    if response["report"] and response["report"] > 50:
+        await Posts.find_one_and_delete({"_id": ObjectId(post_id)})
+        return {"message": "Post Reported Successfully"}
     if posttype == "POST":
         finalresponse = await Posts.find_one_and_update({"_id": ObjectId(post_id)},{"$addToSet": {"reporters":email},"$inc": {"report": 1}}, return_document=True)
     else:
@@ -185,7 +189,7 @@ async def handle_tests(data: add_Comments):
 async def fetch_comment(data: sort):
     id = data.method
     response = await Posts.find_one({"_id": ObjectId(id)})
-    if response["comments-text"]:
+    if response.get("comments-text"):
         return {"data": response["comments-text"]}
     else:
         return {"data": "No comments found."}

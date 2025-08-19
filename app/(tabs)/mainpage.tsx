@@ -15,10 +15,12 @@ export default function mainpage() {
     const [nav, setNav] = useState(false);
     const [liked, setLiked] = useState([{}]);
     const [likedQueue, setlikedQueue] = useState([]);
+    const [ids, setIds] = useState();
     const [loader, setLoader] = useState(false);
     const [comments, setComments] = useState(false);
+    const [commentInput, setCommentInput] = useState("");
     const [addpost, setAddpost] = useState(false);
-    const [comment, setComment] = useState([{}, {}, {}, {}, {}]);
+    const [comment, setComment] = useState([]);
     const [likedanimation, setlikedAnimations] = useState({});
     const [voiceState, setVoiceState] = useState({});
     const [simple, setSimple] = useState(false);
@@ -155,12 +157,13 @@ export default function mainpage() {
     }
 
 
-    const flushLikes = async (type) => {
+    const flushLikes = async (type, id) => {
         try {
-            const response = await axios.post("https://literasocial.onrender.com/likes", {
-                like: likedQueue,
+            const response = await axios.post("http://literasocial.onrender.com/likes", {
+                id: id,
                 email: usermail,
-                type: type
+                type: type,
+                content: "post"
             });
             console.log(response.data);
         }
@@ -171,14 +174,14 @@ export default function mainpage() {
 
     const handleLikes = (item) => {
         if (liked.some(count => count.id == item._id)) {
+            flushLikes("unliked", item._id);
             setLiked(liked.filter(post => post.id != item._id));
             setlikedQueue(likedQueue.filter(post => post.id != item._id));
-            flushLikes("unliked");
             return;
         } else {
             setLiked(prev => [...prev, { id: item._id }])
             setlikedQueue(prev => [...prev, { id: item._id }]);
-            flushLikes("liked");
+            flushLikes("liked", item._id);
             setlikedQueue([]);
             console.log("Flush Activated");
         }
@@ -254,21 +257,44 @@ export default function mainpage() {
         return logo;
     }
 
-    const handle_comments = async (id) => {
+    const handle_comments = async () => {
         const date = new Date;
-        const time = date.toLocaleTimeString();
-        const response = await axios.post("http://127.0.0.1:8000/comment", {
-            postId: id,
-            Email: "jram6269@gmail.com",
-            Username: "Jayaram",
-            UserId: "itz_jram18",
-            Comment: "You are a piece of shit",
-            Time: time
-        })
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) 
+        try {
+            const response = await axios.post("https://literasocial.onrender.com/comment", {
+                postId: ids,
+                Email: usermail,
+                Username: "Jayaram",
+                UserId: "itz_jram18",
+                Comment: commentInput,
+                Time: time
+            })
+            Alert.alert("Comment Successfully added.","Wanna comment more?");
+            setCommentInput("");
+        }
+        catch (error) {
+            console.error("Error saving comments", error);
+        }
+    }
+
+    const open_comments = async (id) => {
+        setComments(!comments);
+        setIds(id);
+        try{
+          const response = await axios.post("https://literasocial.onrender.com/fetch-comments",{ method: id});
+          console.log(response.data);
+          if(response.data.data == "No comments found."){
+            return; 
+          }
+          setComment(response.data.data);
+        }
+        catch(error){
+          console.error("Error fetching comments:",error);
+        }
     }
 
     return (
-        <Pressable onPress={() => { setComments(false) }} style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
+        <Pressable onPress={() => { }} style={{ flex: 1, backgroundColor: "white", display: "flex", position: "relative", flexDirection: 'column', alignItems: 'center' }}>
             <View style={{ width: "100%", height: 100, paddingTop: 20, position: "fixed", display: "flex", flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "lightgray" }}>
                 <Ionicons name="book-outline" color={"black"} size={24} style={{ fontWeight: 600, paddingLeft: 26, paddingTop: 5 }} />
                 <Text style={{ fontSize: 24, fontWeight: 600, paddingLeft: 10 }}>LiteraSocial</Text>
@@ -383,7 +409,7 @@ export default function mainpage() {
                                 <Ionicons name={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "heart" : "heart-outline"} size={25} color={liked.some(count => count.id == item._id) || likedanimation.id == item._id ? "red" : "black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{liked.some(count => count.id == item._id) ? formatCount(item.likes, true) : formatCount(item.likes, false)}</Text>
                             </Pressable>
-                            <Pressable onPress={() => setComments(!comments)} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
+                            <Pressable onPress={() => { open_comments(item._id) }} style={{ display: "flex", flexDirection: 'row', gap: 5 }}>
                                 <Ionicons name="chatbubble-outline" size={25} color={"black"} />
                                 <Text style={{ fontSize: 14, paddingTop: 3 }}>{formatCount(item.comments, false)}</Text>
                             </Pressable>
@@ -431,21 +457,21 @@ export default function mainpage() {
                     renderItem={({ item }) => (
                         <Pressable style={{ minWidth: "95%", maxWidth: "95%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 20, marginTop: 20 }}>
                             <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
-                                <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>JR</Text>
+                                <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "gray" }}>{handle_custom_logo(item.username)}</Text>
                                 <View style={{ display: 'flex', flexDirection: "column", alignItems: 'flex-start', padding: 10, gap: 5 }}>
-                                    <Text style={{ fontSize: 13, fontWeight: 500, textAlign: "left", borderRadius: 20, color: "black" }}>VoiceOfYouth</Text>
-                                    <Text style={{ fontSize: 11, color: "gray", padding: 0, borderRadius: 20 }}>user112</Text>
+                                    <Text style={{ fontSize: 13, fontWeight: 500, textAlign: "left", borderRadius: 20, color: "black" }}>{item.username}</Text>
+                                    <Text style={{ fontSize: 11, color: "gray", padding: 0, borderRadius: 20 }}>{item.time}</Text>
                                 </View>
                                 <Ionicons name="ellipsis-horizontal-outline" size={20} color={"gray"} style={{ position: "absolute", right: 30, zIndex: 1000000000, }} />
                             </View>
                             <View style={{ paddingTop: 65, width: "100%", display: "flex", alignItems: 'center', justifyContent: 'center', padding: 10, borderBottomWidth: 1, borderBottomColor: "lightgray", borderRadius: 40 }}>
-                                <Text style={{ textAlign: "left", fontSize: 13, fontWeight: 500, lineHeight: 25, padding: 10, borderRadius: 50, color: "black" }}>The student protests spreading across campuses aren't just about tuition hikes </Text>
+                                <Text style={{ textAlign: "left", fontSize: 13, fontWeight: 500, lineHeight: 25, padding: 10, borderRadius: 50, color: "black" }}>{item.comment}</Text>
                             </View>
                         </Pressable>
                     )}
                 />
-                <TextInput style={{ width: "95%", position: "absolute", bottom: 30, height: 45, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20, backgroundColor: "white" }} placeholder="Comment your thoughts..." />
-                <Ionicons name="paper-plane-sharp" size={20} color={"black"} style={{ position: "absolute", right: 35, bottom: 40 }} />
+                <TextInput value={commentInput} onChangeText={setCommentInput} style={{ width: "95%", position: "absolute", bottom: 30, height: 45, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20, backgroundColor: "white" }} placeholder="Comment your thoughts..." />
+                <Pressable onPress={() => handle_comments()}  style={{ position: "absolute", right: 35, bottom: 40 }}><Ionicons name="paper-plane-sharp" size={20} color={"black"}/></Pressable>
                 {loader && <Pressable style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 10, marginTop: 20 }}>
                     <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
                         <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>

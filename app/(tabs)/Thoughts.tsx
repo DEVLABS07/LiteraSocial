@@ -38,15 +38,15 @@ export default function Thoughts() {
 
     const slideUp = () => {
         Animated.timing(slideAnim, {
-            toValue: 0, 
+            toValue: 0,
             duration: 500,
-            useNativeDriver: true, 
+            useNativeDriver: true,
         }).start();
     };
 
     const slideDown = () => {
         Animated.timing(slideAnim, {
-            toValue: 500, 
+            toValue: 500,
             duration: 500,
             useNativeDriver: true,
         }).start();
@@ -155,17 +155,34 @@ export default function Thoughts() {
         }
     }
 
+    const flushLikes = async (type, id) => {
+        try {
+            const response = await axios.post("http://literasocial.onrender.com/likes", {
+                id: id,
+                email: usermail,
+                type: type,
+                content: "post"
+            });
+            console.log(response.data);
+        }
+        catch (error) {
+            console.error("Error Saving Likes. Error:", error);
+        }
+    }
+
     const handleLikes = (item) => {
         if (liked.some(count => count.id == item._id)) {
             setLiked(liked.filter(post => post.id != item._id));
+            flushLikes("unliked", item._id)
         } else {
             setLiked(prev => [...prev, { id: item._id }])
+            flushLikes("liked", item._id);
         }
     }
 
     const add_thoughts = async () => {
         try {
-            if(!userThought.trim()) return;4
+            if (!userThought.trim()) return; 4
             const date = new Date;
             const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             console.log(time);
@@ -189,6 +206,9 @@ export default function Thoughts() {
 
 
     }
+
+
+
 
     const formatCount = (num, liked) => {
         if (num < 1000) {
@@ -291,7 +311,7 @@ export default function Thoughts() {
                 onEndReachedThreshold={0.5}
                 renderItem={({ item }) => (
                     <Pressable onPress={checkOptions} style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', marginTop: 0, borderRadius: 10 }}>
-                        {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 10000000001, borderRadius: 10, backgroundColor: "white", elevation:6 , position: "absolute", }}>
+                        {options.id == item._id ? <View style={{ padding: 20, right: 20, top: 20, zIndex: 10000000001, borderRadius: 10, backgroundColor: "white", elevation: 6, position: "absolute", }}>
                             <Pressable onPress={handle_report} style={{ backgroundColor: "red", borderRadius: 10, padding: 10 }}>
                                 <Text style={{ color: "white", fontSize: 13 }}>Report</Text>
                             </Pressable>
