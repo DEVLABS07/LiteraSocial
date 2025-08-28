@@ -279,6 +279,7 @@ export default function mainpage() {
 
     const open_comments = async (id) => {
         setComments(!comments);
+        setComment([]);
         setIds(id);
         try{
           const response = await axios.post("https://literasocial.onrender.com/fetch-comments",{ method: id});
@@ -394,6 +395,7 @@ export default function mainpage() {
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: 'left', paddingLeft: 5 }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.time}</Text>
                             </View>
+                            <Pressable style={{padding:10,marginLeft:10, borderRadius:10, borderWidth:1, borderColor:"blue"}}><Text style={{color:"blue"}}>Follow</Text></Pressable>
                             <Ionicons onPress={() => setOptions({ id: item._id })} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "relative", left: "50%" }} />
                         </View>
                         <View style={{ width: "100%", display: "flex", flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>

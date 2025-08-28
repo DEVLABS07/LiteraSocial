@@ -206,6 +206,6 @@ async def search_data(payload: SearchRequest):
        results = await login.find({"Username": payload.search}).to_list(length=None)
        for result in results:
            result["_id"] = str(result["_id"])
-       return {"results": results}
+       return {"username": results["email"], "userid": results["userid"]}
     else:
         return{"data": " Search Type not specified"}

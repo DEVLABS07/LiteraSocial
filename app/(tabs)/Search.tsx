@@ -13,11 +13,11 @@ export default function Search() {
 
     const handle_search = async () => {
         try {
-            const response = await axios.post("http://127.0.0.1:8000/search", {
+            const response = await axios.post("https://literasocial.onrender.com/search", {
                 search: search,
                 type: type
             })
-            console.log(response);
+            console.log(response.data.results);
         }
         catch(error){
             console.error("Error fetching data:",error);
