@@ -9,7 +9,7 @@ export default function Search() {
     const [option, setOption] = useState("l");
     const [data, setData] = useState([]);
     const [search, setSearch] = useState('');
-    const [type, setType] = useState('user');
+    const [type, setType] = useState('post');
 
     const handle_search = async () => {
         if(!search.trim()) return;

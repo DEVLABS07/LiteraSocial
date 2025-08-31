@@ -211,6 +211,7 @@ async def search_data(payload: SearchRequest):
        email = []
        id = []
        for result in results:
+           result["_id"] = str(result["_id"])
            email.append(result["email"])
            id.append(results["userid"])
        return {"username": email, "userid": id}
