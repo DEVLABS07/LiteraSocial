@@ -201,11 +201,19 @@ async def search_data(payload: SearchRequest):
     if type == "post":
        query = {"title": {"$regex": payload.search, "$options": "i"}}  
        results = await Posts.find(query).to_list(length=None)
-       return {"results": results}
-    elif type == "user":
-       results = await login.find({"Username": payload.search}).to_list(length=None)
        for result in results:
            result["_id"] = str(result["_id"])
-       return {"username": results["email"], "userid": results["userid"]}
+       return {"username": results, "userid": results["userid"]}
+    elif type == "user":
+       results = await login.find({"Username": payload.search}).to_list(length=None)
+       email = []
+       for result in results:
+           email.append(result["email"])
+       return {"username": email, "userid": results["userid"]}
     else:
         return{"data": " Search Type not specified"}
+    
+@app.get("/fetchsearch")
+async def fetch_search():
+    results = await Posts.find().to_list(length=None)
+    return {"results": results}

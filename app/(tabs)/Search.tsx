@@ -1,39 +1,63 @@
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function Search() {
     const router = useRouter();
     const [option, setOption] = useState("l");
-    const [data, setData] = useState(['', '', '']);
+    const [data, setData] = useState([]);
     const [search, setSearch] = useState('');
     const [type, setType] = useState('user');
 
     const handle_search = async () => {
+        if(!search.trim()) return;
         try {
             const response = await axios.post("https://literasocial.onrender.com/search", {
                 search: search,
                 type: type
             })
-            console.log(response.data.results);
+            console.log(response.data);
+            setData([...response.data.results]);
         }
-        catch(error){
-            console.error("Error fetching data:",error);
+        catch (error) {
+            console.error("Error fetching data:", error);
         }
-       
     }
+
+    useEffect(() => {
+        const fetch_search = async () => {
+            try{
+                const response = await axios.get("https://literasocial.onrender.com/fetchsearch");
+                console.log(response.data.results);
+
+            }
+            catch(error){
+                console.error("Error:",error);
+            }
+        }
+    },[]);
 
 
 
 
     return (
         <View style={{ flex: 1, backgroundColor: "white", display: "flex", alignItems: 'center', paddingTop: 50 }}>
-            <TextInput value={search} onChangeText={setSearch} style={{ width: "90%", height: 50, borderWidth: 1, borderColor: "gray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20 }} placeholder="Search for Poems, Stories, Users..." />
-            <Pressable style={{ display: "flex", alignItems: 'center', flexDirection: 'row', width: "100%", justifyContent: "center", paddingTop: 20, gap: 20 }}>
-                <Pressable onPress={() => {setOption("l"); handle_search();}} style={{ width: "43%", padding: 21, backgroundColor: option == "l" ? "black" : "white", borderWidth: 1, borderColor: option == "l" ? "white" : "black", borderRadius: 10, alignItems: "center" }}><Text style={{ color: option == "l" ? "white" : "black" }}>Literature</Text></Pressable>
-                <Pressable onPress={() => setOption("a")} style={{ width: "43%", padding: 20, backgroundColor: option == "a" ? "black" : "white", borderWidth: 1, borderColor: "black", borderRadius: 10, alignItems: 'center' }}><Text style={{ color: option == "a" ? "white" : "black" }}>Accounts</Text></Pressable>
+            <View style={{ width: "100%", height: 70, backgroundColor: "white", display: "flex" }}>
+                <Text style={{ fontSize: 26, fontWeight: 500, paddingLeft: 30 }}>Search</Text>
+            </View>
+            <Ionicons name="search-outline" size={25} color={"gray"} style={{ position: "absolute", top: 132, left: 35 }} />
+            <TextInput value={search} onChangeText={setSearch} style={{ width: "90%", height: 50, borderWidth: 1, borderColor: "gray", borderRadius: 10, padding: 10, paddingLeft: 50, paddingRight: 20 }} placeholder="Search for Poems, Stories, Users..." />
+            <Pressable style={{ display: "flex", alignItems: 'center', flexDirection: 'row', width: "90%",borderRadius:10, borderWidth: .5, borderColor: "black", justifyContent: "center", marginTop: 20, padding: 10,paddingTop:10,paddingBottom:10, gap: 5, backgroundColor: 'white' }}>
+                <Pressable onPress={() => { setOption("l"); handle_search(); }} style={{ width: "50%", padding: 21, backgroundColor: option == "l" ? "black" : "white", borderRadius: 10, alignItems: "center", display:"flex", flexDirection:"row", gap:10, justifyContent:"center" }}>
+                    <Ionicons name="book-outline" size={20} color={ option == "a" ? "black" : "white"} />
+                    <Text style={{ color: option == "l" ? "white" : "black", fontSize: 15, fontWeight: 600 }}>Literature</Text>
+                </Pressable>
+                <Pressable onPress={() => setOption("a")} style={{ width: "50%", padding: 20, backgroundColor: option == "a" ? "black" : "white", borderRadius: 10, alignItems: 'center', display: "flex", flexDirection: "row", justifyContent: "center", gap: 10 }}>
+                    <Ionicons name="person-circle-outline" size={20} color={ option == "l" ? "black" : "white"} />
+                    <Text style={{ color: option == "a" ? "white" : "black", fontSize: 15, fontWeight: 600 }}>Accounts</Text>
+                </Pressable>
             </Pressable>
             <FlatList
                 data={data}
