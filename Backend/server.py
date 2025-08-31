@@ -201,14 +201,18 @@ async def search_data(payload: SearchRequest):
     if type == "post":
        query = {"title": {"$regex": payload.search, "$options": "i"}}  
        results = await Posts.find(query).to_list(length=None)
+       userid = []
        for result in results:
            result["_id"] = str(result["_id"])
-       return {"username": results, "userid": results["userid"]}
+           userid.append(result["userid"])
+       return {"username": results, "userid": userid}
     elif type == "user":
        results = await login.find({"Username": payload.search}).to_list(length=None)
        email = []
+       id = []
        for result in results:
            email.append(result["email"])
+           id.append(results["userid"])
        return {"username": email, "userid": results["userid"]}
     else:
         return{"data": " Search Type not specified"}

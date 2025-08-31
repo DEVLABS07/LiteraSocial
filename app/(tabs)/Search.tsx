@@ -19,7 +19,7 @@ export default function Search() {
                 type: type
             })
             console.log(response.data);
-            setData([...response.data.results]);
+            setData(...response.data.results);
         }
         catch (error) {
             console.error("Error fetching data:", error);
@@ -37,6 +37,7 @@ export default function Search() {
                 console.error("Error:",error);
             }
         }
+        fetch_search();
     },[]);
 
 
