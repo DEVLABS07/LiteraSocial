@@ -395,8 +395,8 @@ export default function mainpage() {
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: 'left', paddingLeft: 5 }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.time}</Text>
                             </View>
-                            <Pressable style={{padding:10,marginLeft:10, borderRadius:10, borderWidth:1, borderColor:"#405DE6"}}><Text style={{color:"#405DE6"}}>Follow</Text></Pressable>
-                            <Ionicons onPress={() => setOptions({ id: item._id })} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ position: "relative", left: "25%" }} />
+                            <Pressable style={{padding:10,marginLeft:80, borderRadius:10, borderWidth:1, borderColor:"#405DE6"}}><Text style={{color:"#405DE6"}}>Follow</Text></Pressable>
+                            <Ionicons onPress={() => setOptions({ id: item._id })} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ marginLeft:20 }} />
                         </View>
                         <View style={{ width: "100%", display: "flex", flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                             <Text style={{ fontSize: 18, fontWeight: 500, flexWrap: "wrap" }}>{item.heading}</Text>

@@ -213,7 +213,7 @@ async def search_data(payload: SearchRequest):
        for result in results:
            email.append(result["email"])
            id.append(results["userid"])
-       return {"username": email, "userid": results["userid"]}
+       return {"username": email, "userid": id}
     else:
         return{"data": " Search Type not specified"}
     
