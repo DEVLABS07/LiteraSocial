@@ -204,7 +204,7 @@ async def search_data(payload: SearchRequest):
        userid = []
        for result in results:
            result["_id"] = str(result["_id"])
-           userid.append(result["userid"])
+           userid.append(result["Username"])
        return {"username": results, "userid": userid}
     elif type == "user":
        results = await login.find({"Username": payload.search}).to_list(length=None)
@@ -212,8 +212,8 @@ async def search_data(payload: SearchRequest):
        id = []
        for result in results:
            result["_id"] = str(result["_id"])
-           email.append(result["email"])
-           id.append(results["userid"])
+           email.append(result["Email"])
+           id.append(results["Username"])
        return {"username": email, "userid": id}
     else:
         return{"data": " Search Type not specified"}
