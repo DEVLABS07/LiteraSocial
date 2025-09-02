@@ -259,7 +259,7 @@ export default function mainpage() {
 
     const handle_comments = async () => {
         const date = new Date;
-        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'}) 
+        const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         try {
             const response = await axios.post("https://literasocial.onrender.com/comment", {
                 postId: ids,
@@ -269,7 +269,7 @@ export default function mainpage() {
                 Comment: commentInput,
                 Time: time
             })
-            Alert.alert("Comment Successfully added.","Wanna comment more?");
+            Alert.alert("Comment Successfully added.", "Wanna comment more?");
             setCommentInput("");
         }
         catch (error) {
@@ -281,16 +281,16 @@ export default function mainpage() {
         setComments(!comments);
         setComment([]);
         setIds(id);
-        try{
-          const response = await axios.post("https://literasocial.onrender.com/fetch-comments",{ method: id});
-          console.log(response.data);
-          if(response.data.data == "No comments found."){
-            return; 
-          }
-          setComment(response.data.data);
+        try {
+            const response = await axios.post("https://literasocial.onrender.com/fetch-comments", { method: id });
+            console.log(response.data);
+            if (response.data.data == "No comments found.") {
+                return;
+            }
+            setComment(response.data.data);
         }
-        catch(error){
-          console.error("Error fetching comments:",error);
+        catch (error) {
+            console.error("Error fetching comments:", error);
         }
     }
 
@@ -395,8 +395,8 @@ export default function mainpage() {
                                 <Text style={{ fontSize: 15, fontWeight: 500, textAlign: 'left', paddingLeft: 5 }}>{item.Username}</Text>
                                 <Text style={{ fontSize: 12, color: "gray", padding: 5 }}>{item.time}</Text>
                             </View>
-                            <Pressable style={{padding:10,marginLeft:80, borderRadius:10, borderWidth:1, borderColor:"#405DE6"}}><Text style={{color:"#405DE6"}}>Follow</Text></Pressable>
-                            <Ionicons onPress={() => setOptions({ id: item._id })} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ marginLeft:20 }} />
+                            <Pressable style={{ padding: 10, marginLeft: 40, borderRadius: 10, borderWidth: 1, borderColor: "#405DE6" }}><Text style={{ color: "#405DE6" }}>Follow</Text></Pressable>
+                            <Ionicons onPress={() => setOptions({ id: item._id })} name="ellipsis-horizontal-outline" size={20} color={"black"} style={{ marginLeft: 50 }} />
                         </View>
                         <View style={{ width: "100%", display: "flex", flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                             <Text style={{ fontSize: 18, fontWeight: 500, flexWrap: "wrap" }}>{item.heading}</Text>
@@ -473,7 +473,7 @@ export default function mainpage() {
                     )}
                 />
                 <TextInput value={commentInput} onChangeText={setCommentInput} style={{ width: "95%", position: "absolute", bottom: 30, height: 45, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 20, paddingRight: 20, backgroundColor: "white" }} placeholder="Comment your thoughts..." />
-                <Pressable onPress={() => handle_comments()}  style={{ position: "absolute", right: 35, bottom: 40 }}><Ionicons name="paper-plane-sharp" size={20} color={"black"}/></Pressable>
+                <Pressable onPress={() => handle_comments()} style={{ position: "absolute", right: 35, bottom: 40 }}><Ionicons name="paper-plane-sharp" size={20} color={"black"} /></Pressable>
                 {loader && <Pressable style={{ minWidth: "85%", maxWidth: "85%", width: "110%", borderWidth: 1, borderColor: 'lightgray', display: "flex", alignItems: 'center', borderRadius: 10, marginTop: 20 }}>
                     <View style={{ position: "absolute", left: 10, width: "100%", padding: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: "flex-start", }}>
                         <Text style={{ padding: 15, borderRadius: 40, backgroundColor: "lightgray", color: "lightgray" }}>JR</Text>

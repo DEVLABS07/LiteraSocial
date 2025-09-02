@@ -217,14 +217,14 @@ async def search_data(payload: SearchRequest):
        for result in results:
            result["_id"] = str(result["_id"])
            email.append(result["Email"])
-           id.append(results["Username"])
+           id.append(result["Username"])
        return {"username": email, "userid": id}
     else:
         return{"data": " Search Type not specified"}
     
 @app.get("/fetchsearch")
 async def fetch_search():
-    results = await Posts.find().to_list(length=None)
+    results = await Posts.find().to_list(length=10)
     for result in results:
         result["_id"] = str(result["_id"])
     return {"results": results}
