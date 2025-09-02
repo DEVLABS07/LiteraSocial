@@ -201,6 +201,8 @@ async def search_data(payload: SearchRequest):
     if type == "post":
        query = {"title": {"$regex": payload.search, "$options": "i"}}  
        results = await Posts.find(query).to_list(length=None)
+       if not results:
+           return {"message": "No Posts found"}
        userid = []
        for result in results:
            result["_id"] = str(result["_id"])
@@ -208,6 +210,8 @@ async def search_data(payload: SearchRequest):
        return {"username": results, "userid": userid}
     elif type == "user":
        results = await login.find({"Username": payload.search}).to_list(length=None)
+       if not results:
+           return {"message": "No user found"}
        email = []
        id = []
        for result in results:
@@ -221,4 +225,6 @@ async def search_data(payload: SearchRequest):
 @app.get("/fetchsearch")
 async def fetch_search():
     results = await Posts.find().to_list(length=None)
+    for result in results:
+        result["_id"] = str(result["_id"])
     return {"results": results}

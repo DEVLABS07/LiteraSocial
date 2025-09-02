@@ -19,6 +19,7 @@ export default function Search() {
                 type: type
             })
             console.log(response.data);
+            console.log("Search Works");
             setData(...response.data.results);
         }
         catch (error) {
@@ -48,10 +49,10 @@ export default function Search() {
             <View style={{ width: "100%", height: 70, backgroundColor: "white", display: "flex" }}>
                 <Text style={{ fontSize: 26, fontWeight: 500, paddingLeft: 30 }}>Search</Text>
             </View>
-            <Ionicons name="search-outline" size={25} color={"gray"} style={{ position: "absolute", top: 132, left: 35 }} />
+            <Ionicons onPress={ handle_search} name="search-outline" size={25} color={"gray"} style={{ position: "absolute", top: 132, left: 35 }} />
             <TextInput value={search} onChangeText={setSearch} style={{ width: "90%", height: 50, borderWidth: 1, borderColor: "gray", borderRadius: 10, padding: 10, paddingLeft: 50, paddingRight: 20 }} placeholder="Search for Poems, Stories, Users..." />
             <Pressable style={{ display: "flex", alignItems: 'center', flexDirection: 'row', width: "90%",borderRadius:10, borderWidth: .5, borderColor: "black", justifyContent: "center", marginTop: 20, padding: 10,paddingTop:10,paddingBottom:10, gap: 5, backgroundColor: 'white' }}>
-                <Pressable onPress={() => { setOption("l"); handle_search(); }} style={{ width: "50%", padding: 21, backgroundColor: option == "l" ? "black" : "white", borderRadius: 10, alignItems: "center", display:"flex", flexDirection:"row", gap:10, justifyContent:"center" }}>
+                <Pressable onPress={() => { setOption("l"); }} style={{ width: "50%", padding: 21, backgroundColor: option == "l" ? "black" : "white", borderRadius: 10, alignItems: "center", display:"flex", flexDirection:"row", gap:10, justifyContent:"center" }}>
                     <Ionicons name="book-outline" size={20} color={ option == "a" ? "black" : "white"} />
                     <Text style={{ color: option == "l" ? "white" : "black", fontSize: 15, fontWeight: 600 }}>Literature</Text>
                 </Pressable>
