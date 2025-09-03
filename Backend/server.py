@@ -227,4 +227,4 @@ async def fetch_search():
     results = await Posts.find().to_list(length=10)
     for result in results:
         result["_id"] = str(result["_id"])
-    return {"results": results}
+    return {"username": results["Username", "heading": results["heading"], "userid":results["UserId"]]}

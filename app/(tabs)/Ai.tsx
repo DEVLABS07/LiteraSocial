@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Alert, FlatList, Keyboard, KeyboardEvent, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, Keyboard, KeyboardEvent, Pressable, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function Ai() {
     const router = useRouter();
@@ -45,7 +45,6 @@ export default function Ai() {
     }
     const handle_user_message = () => {
         if (!input.trim()) {
-            Alert.alert("LiteraSocial", "Empty Input");
             return;
         }
         const now = new Date();
@@ -132,7 +131,7 @@ export default function Ai() {
                 }} />
             <View style={{ width: "100%", position: "absolute", height: 80, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", zIndex: 1000, bottom: keyboardHeight, display: "flex", justifyContent: "center", flexDirection: "row", gap: 10 }}>
                 <TextInput value={input} onChangeText={setInput} style={{ width: "80%", height: 50, borderWidth: 1, borderColor: "lightgray", borderRadius: 40, padding: 10, paddingLeft: 15, paddingRight: 15, marginTop: 15 }} placeholder="Ask about Literature, Writing, Stories.."></TextInput>
-                <TouchableOpacity onPress={handle_user_message} activeOpacity={0.7} style={{ padding: 10, backgroundColor: "black", borderRadius: 20, height: 40, marginTop: 20 }}><Ionicons name="paper-plane-outline" size={20} color={"white"} /></TouchableOpacity>
+                <TouchableOpacity onPress={handle_user_message} activeOpacity={0.7} style={{ padding: 10, backgroundColor: input?"black":"lightgray", borderRadius: 20, height: 40, marginTop: 20 }}><Ionicons name="paper-plane-outline" size={20} color={"white"} /></TouchableOpacity>
             </View>
             <View style={{ width: "100%", height: 80, bottom: 0, position: "absolute", zIndex: 10000000, backgroundColor: "white", borderTopWidth: 1, borderTopColor: "lightgray", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", }}>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => router.push("/(tabs)/mainpage")} style={{ width: "19%", height: "100%", display: "flex", alignItems: 'center', justifyContent: "center" }}>
